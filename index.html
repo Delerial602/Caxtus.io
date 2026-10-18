@@ -840,7 +840,70 @@
 
             requestAnimationFrame(gameLoop);
         }
+// === PLAYER SKIN LOADER ===
+const playerEl = document.getElementById('player');
+let pupilLeft = null, pupilRight = null;
 
+fetch('assets/skins/flower.svg')
+    .then(r => r.text())
+    .then(svgText => {
+        playerEl.innerHTML = svgText;
+        pupilLeft  = playerEl.querySelector('#pupil-left');
+        pupilRight = playerEl.querySelector('#pupil-right');
+    });
+
+// === PUPIL TRACKING (mouse first, keyboard only when mouse is idle) ===
+const PUPIL_RANGE    = 0.6;
+const MOUSE_IDLE_MS  = 1200;
+
+let mouse = { x: innerWidth / 2, y: innerHeight / 2 };
+let lastMouseMove = 0;
+let pupil = { x: 0, y: 0 };
+
+window.addEventListener('mousemove', e => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+    lastMouseMove = performance.now();
+});
+
+const keysHeld = new Set();
+window.addEventListener('keydown', e => keysHeld.add(e.key.toLowerCase()));
+window.addEventListener('keyup',   e => keysHeld.delete(e.key.toLowerCase()));
+
+function pupilLoop() {
+    let tx = 0, ty = 0;
+
+    if (performance.now() - lastMouseMove < MOUSE_IDLE_MS) {
+        // MOUSE MODE — look toward the cursor
+        const r = playerEl.getBoundingClientRect();
+        const dx = mouse.x - (r.left + r.width / 2);
+        const dy = mouse.y - (r.top + r.height / 2);
+        const len = Math.hypot(dx, dy) || 1;
+        tx = dx / len;  ty = dy / len;
+    } else {
+        // KEYBOARD MODE — look where you're walking
+        let kx = 0, ky = 0;
+        if (keysHeld.has('w') || keysHeld.has('arrowup'))    ky -= 1;
+        if (keysHeld.has('s') || keysHeld.has('arrowdown'))  ky += 1;
+        if (keysHeld.has('a') || keysHeld.has('arrowleft'))  kx -= 1;
+        if (keysHeld.has('d') || keysHeld.has('arrowright')) kx += 1;
+        const len = Math.hypot(kx, ky) || 1;
+        tx = kx / len;  ty = ky / len;
+    }
+
+    pupil.x += (tx - pupil.x) * 0.15;
+    pupil.y += (ty - pupil.y) * 0.15;
+
+    if (pupilLeft && pupilRight) {
+        const ox = (pupil.x * PUPIL_RANGE).toFixed(4);
+        const oy = (pupil.y * PUPIL_RANGE).toFixed(4);
+        pupilLeft.setAttribute('transform',  `translate(${ox}, ${oy})`);
+        pupilRight.setAttribute('transform', `translate(${ox}, ${oy})`);
+    }
+
+    requestAnimationFrame(pupilLoop);
+}
+pupilLoop();
     </script>
 </body>
 </html> 
