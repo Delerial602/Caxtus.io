@@ -1,0 +1,775 @@
+        /* ==== Color Variables ==== */
+        :root {
+            --background-color: #000000;
+            --title-stroke-color: #000000;
+            --input-bg-color: #ffffff;
+            --input-text-color: #000000;
+            --input-border-color: #000000;
+            --button-bg-color: #26c214ff;
+            --button-border-color: #1d901599;
+            --button-hover-color: #28b717ff;
+            --craft-bg-color: #dba456ff;
+            --craft-border-color: #b07e3cff;
+            --craft-text-color: #ffffff;
+            
+            /* Settings Button Colors */
+            --settings-bg: #989898ff;
+            --settings-border: #767676ff;
+
+            /* Account Button Colors (Purple) */
+            --account-bg: #9f5cbaff;
+            --account-border: #8136a1ff;
+
+            /* Changelog Button Colors (Green) */
+            --changelog-bg: #9eb770ff; 
+            --changelog-border: #849761;
+
+            /* Minimap Colors */
+            --minimap-bg: #000000;
+            --minimap-border: #ffffff;
+            --minimap-label-color: #ffffff;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Ubuntu', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background: var(--background-color);
+            user-select: none;
+        }
+
+        /* === MENU LAYER === */
+        .menu-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.3s;
+        }
+
+        .menu-layer.hidden {
+            display: none; 
+        }
+
+        .menu-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            color: white;
+        }
+
+        /* === STYLIZED TEXT CLASS === */
+        .stylized-text {
+            user-select: none;
+            color: #ffffff;
+            text-shadow: 
+                -0.04em -0.04em 0 #000000,
+                 0.04em -0.04em 0 #000000,
+                -0.04em  0.04em 0 #000000,
+                 0.04em  0.04em 0 #000000,
+                -0.04em  0      0 #000000,
+                 0.04em  0      0 #000000,
+                 0      -0.04em 0 #000000,
+                 0       0.04em 0 #000000;
+        }
+
+        h1 {
+            font-size: 70px;
+            font-weight: 700; 
+            position: absolute;
+            top: -150px;
+            left: 60px;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 0;
+        }
+
+        /* === MAP SELECTOR === */
+        .map-selector {
+            position: absolute;
+            top: -70px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 26;
+        }
+
+        .arrow-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-family: 'Ubuntu', sans-serif;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            text-shadow: 2px 2px 0 #000;
+            transition: transform 0.1s, color 0.1s;
+            line-height: 1;
+            padding: 0 5px;
+        }
+
+        .arrow-btn:hover {
+            transform: scale(1.2);
+            color: #ddd;
+        }
+
+        .arrow-btn:active {
+            transform: scale(0.9);
+        }
+
+        .map-name {
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: capitalize;
+            min-width: 120px;
+            text-align: center;
+            user-select: none;
+        }
+
+        /* === GUEST LABEL === */
+        .guest-label {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-family: 'Ubuntu', sans-serif;
+            font-weight: 700;
+            font-size: 24px;
+            user-select: none;
+            z-index: 25;
+        }
+
+        /* Inputs & Play Button */
+        input {
+            padding: 6px 0px;
+            font-size: 20px;
+            border-radius: 5px;
+            border: 4.5px solid var(--input-border-color);
+            outline: none;
+            font-family: 'Ubuntu', sans-serif;
+            background: var(--input-bg-color);
+            color: var(--input-text-color);
+        }
+
+        input::placeholder {
+            color: var(--input-text-color);
+        }
+
+        .play-button {
+            padding: 4px 20px;
+            font-size: 22px;
+            color: #ffffff;
+            background-color: var(--button-bg-color);
+            border: 6px solid var(--button-border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0s, background-color 0s;
+            font-family: 'Ubuntu', sans-serif;
+        }
+
+        .play-button:hover {
+            transform: scale(1);
+            background-color: var(--button-hover-color);
+        }
+
+        /* === TRANSITION OVERLAY === */
+        .transition-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background-color: black;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100; 
+            pointer-events: none;
+        }
+
+        .transition-overlay.closing {
+            width: 250vmax;
+            height: 250vmax;
+            transition: width 0.5s ease-in-out, height 0.5s ease-in-out;
+        }
+
+        .transition-overlay.opening {
+            width: 0;
+            height: 0;
+            transition: width 0.5s ease-in-out, height 0.5s ease-in-out;
+        }
+
+        /* === SIDEBAR BUTTONS === */
+        .sidebar-btn {
+            position: fixed;
+            left: 10px;
+            padding: 0px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 20;
+            font-family: 'Ubuntu', sans-serif;
+            transition: transform 0.2s, opacity 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: none; 
+        }
+        
+        .sidebar-btn:hover {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .sidebar-btn svg {
+            display: block;
+        }
+
+        .settings-button {
+            top: 10px;
+            width: 37px;
+            height: 37px;
+            background-color: var(--settings-bg);
+            border: 3px solid var(--settings-border);
+            border-radius: 4px;
+            padding: 5px;
+            z-index: 101; 
+        }
+
+        /* --- ACCOUNT BUTTON --- */
+        .account-button {
+            top: 10px;
+            left: 55px; 
+            width: 37px;
+            height: 37px;
+            background-color: var(--account-bg);
+            border: 3px solid var(--account-border);
+            border-radius: 4px;
+            padding: 5px;
+            z-index: 101; 
+        }
+
+        /* --- CHANGELOG BUTTON --- */
+        .changelog-button {
+            top: 10px;
+            left: 100px;
+            width: 37px;
+            height: 37px;
+            background-color: var(--changelog-bg);
+            border: 3px solid var(--changelog-border);
+            border-radius: 4px;
+            padding: 5px;
+            z-index: 101;
+        }
+
+        /* --- MENU / RETURN BUTTON --- */
+        .menu-return-button {
+            top: 10px;
+            left: 145px;
+            width: 37px;
+            height: 37px;
+            background-color: #e74c3c; /* Red */
+            border: 3px solid #c0392b;
+            border-radius: 4px;
+            padding: 5px;
+            z-index: 101;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            display: none; /* Hidden on menu, shown in game */
+        }
+        
+        .menu-return-button:hover {
+            background-color: #ff5e4d;
+        }
+
+        .inventory-button {
+            bottom: 140px;
+            background-color: #4f91baff;
+            border: 4px solid #417697ff;
+        }
+
+        .middle-button {
+            bottom: 75px;
+            background-color: #c45959ff;
+            border: 4px solid #954545ff;
+        }
+
+        .craft-button {
+            bottom: 10px;
+            padding: 0px 8px;
+            font-size: 6px;
+            background-color: var(--craft-bg-color);
+            color: var(--craft-text-color);
+            border: 4px solid var(--craft-border-color);
+            z-index: 20;
+        }
+
+        /* === MINIMAP === */
+        .minimap-container {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 25;
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .minimap-content {
+            width: 150px;
+            height: 150px;
+            background-color: var(--minimap-bg);
+            border: 4px solid var(--minimap-border);
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .minimap-symbol {
+            font-size: 20px;
+            color: white;
+            font-weight: bold;
+            user-select: none;
+            opacity: 0.5;
+        }
+
+        .minimap-label {
+            color: var(--minimap-label-color);
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 5px;
+            text-shadow: 2px 2px 0 #000000;
+            font-family: 'Ubuntu', sans-serif;
+        }
+
+        /* === BACKGROUND STYLES === */
+        .svg-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-repeat: repeat;
+            background-size: 512px 512px; 
+            z-index: 1;
+            transition: background 0.3s ease;
+        }
+
+        .grid-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--title-stroke-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--title-stroke-color) 1px, transparent 1px);
+            background-size: 32px 32px;
+            background-position: center;
+            opacity: 0.2; 
+            z-index: 1;
+            display: none; 
+        }
+
+        /* === DROPDOWN MENUS (General) === */
+        .dropdown-menu {
+            position: fixed;
+            top: 60px; 
+            width: 250px;
+            border-radius: 5px;
+            display: none; 
+            flex-direction: column; 
+            z-index: 100;
+            font-family: 'Ubuntu', sans-serif;
+        }
+
+        .dropdown-menu.open {
+            display: flex;
+        }
+
+        /* === SETTINGS DROPDOWN MENU === */
+        .settings-menu {
+            left: 10px;
+            background-color: var(--settings-bg);
+            border: 4px solid var(--settings-border);
+            padding: 10px;
+            color: white;
+        }
+
+        .settings-title {
+            font-weight: bold;
+            font-size: 18px;
+            text-align: left;
+            margin-bottom: 10px;
+            margin-top: 0;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+            padding-bottom: 5px;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .setting-item {
+            background-color: rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 4px;
+            padding: 8px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            user-select: none;
+            margin-bottom: 5px; 
+        }
+        
+        .setting-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .setting-item:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .setting-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* === ACCOUNT DROPDOWN MENU === */
+        .account-menu {
+            left: 55px;
+            background-color: var(--account-bg);
+            border: 4px solid var(--account-border);
+            padding: 10px;
+            width: 230px;
+            box-sizing: border-box;
+        }
+
+        .account-title {
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .account-input {
+            width: 100%; 
+            margin: 0 auto 8px auto;
+            border: 2px solid #000;
+            box-sizing: border-box; 
+            font-size: 14px;
+            padding: 4px 8px;
+            display: block;
+        }
+
+        .account-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 100%;
+        }
+
+        .auth-btn {
+            background-color: #8e44ad; 
+            color: white;
+            border: 2px solid #6c3483;
+            padding: 6px;
+            border-radius: 4px;
+            font-family: 'Ubuntu', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+            box-sizing: border-box; 
+        }
+
+        .auth-btn:hover {
+            background-color: #7d3c98;
+        }
+
+        .logged-in-text {
+            color: white;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background-color: #c0392b; 
+            border-color: #962d22;
+        }
+        
+        .logout-btn:hover {
+            background-color: #a93226;
+        }
+
+        /* === INVENTORY DROPDOWN MENU === */
+        .inventory-menu {
+            left: 75px;
+            bottom: 10px;
+            top: auto;
+            width: 230px;
+            background-color: #4f91baff;
+            border: 4px solid #417697ff;
+            padding: 10px;
+            color: white;
+            min-height: 330px; 
+        }
+
+        .inventory-title {
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 10px;
+            margin-top: 0;
+            text-shadow: 1px 1px 0 #000;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+            padding-bottom: 5px;
+        }
+
+        .item-display-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .icon-stack {
+            position: relative;
+            width: 50px;
+            height: 50px;
+        }
+
+        .item-name {
+            margin-top: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            font-family: 'Ubuntu', sans-serif;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        /* === CHANGELOG DROPDOWN MENU === */
+        .changelog-menu {
+            left: 100px;
+            background-color: var(--changelog-bg);
+            border: 4px solid var(--changelog-border);
+            max-height: 350px;
+            overflow-y: auto;
+            padding: 0;
+            color: white;
+        }
+
+        .changelog-header {
+            background-color: rgba(0,0,0,0.1);
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+        }
+
+        .changelog-title {
+            font-weight: bold;
+            font-size: 18px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            margin: 0;
+        }
+
+        .close-changelog {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .changelog-content {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .changelog-entry {
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 10px;
+        }
+
+        .changelog-entry:last-child {
+            border-bottom: none;
+        }
+
+        .changelog-date {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 4px;
+            display: block;
+            color: #E8F5E9;
+        }
+
+        .changelog-item-text {
+            font-size: 13px;
+            margin: 2px 0;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .changelog-item-text::before {
+            content: "-";
+            position: absolute;
+            left: 0;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .changelog-footer {
+            font-size: 11px;
+            text-align: center;
+            font-style: italic;
+            opacity: 0.8;
+            padding: 10px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .changelog-menu::-webkit-scrollbar {
+            width: 8px;
+        }
+        .changelog-menu::-webkit-scrollbar-thumb {
+            background-color: rgba(255,255,255,0.3);
+            border-radius: 4px;
+        }
+
+        /* === GAME LAYER & PLAYER === */
+        #game-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            display: none; 
+            overflow: hidden;
+        }
+
+        #player {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 45px;  
+            height: 45px; 
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        /* === HOTBAR === */
+        .hotbar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            gap: 10px; 
+            z-index: 20;
+        }
+
+        .slot-row {
+            display: flex;
+            gap: 8px; 
+        }
+
+        .slot {
+            width: 45px; 
+            height: 45px;
+            background-color: #ffffff;
+            border: 3px solid #cccccc; 
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+
+        .slot-small {
+            width: 40px;
+            height: 40px;
+            background-color: #ffffff;
+            border: 2px solid #cccccc;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+
+        /* === CHAT BOX === */
+        .chat-box {
+            position: absolute; 
+            left: 70px;
+            bottom: 10px; 
+            width: 180px; 
+            height: 180px; 
+            border-radius: 5px;
+            display: flex; 
+            flex-direction: column;
+            padding: 5px;
+            font-family: 'Ubuntu', sans-serif;
+            user-select: text;
+            font-size: 12px; 
+            z-index: 30; 
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid #555;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            padding: 5px;
+            color: white;
+            font-size: 12px; 
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 4px; 
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background-color: #888;
+            border-radius: 2px;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 5px;
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 4px; 
+            border: 2px solid #000000ff;
+            border-radius: 4px;
+            background-color: white;
+            color: black;
+            font-family: 'Ubuntu', sans-serif;
+            outline: none;
+            font-size: 12px;
+        }
