@@ -1,0 +1,127 @@
+<svg
+   width="4.4169998mm"
+   height="4.4169998mm"
+   viewBox="0 0 4.4169998 4.4169998"
+   version="1.1"
+   id="svg1"
+   inkscape:export-filename="flower_for_alien.svg"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm" />
+  <defs
+     id="defs1">
+    <clipPath
+       id="FEiUpeuWILNX">
+      <path
+         fill="none"
+         stroke="none"
+         d="m 958.73998,444.92499 a 0.94499999,1.89 0 1 1 0,-0.002"
+         id="path3" />
+    </clipPath>
+    <clipPath
+       id="KJccqrhLHDVS">
+      <path
+         fill="none"
+         stroke="none"
+         d="m 963.15002,444.92499 a 0.94499999,1.89 0 1 1 0,-0.002"
+         id="path4" />
+    </clipPath>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g7764"
+       transform="matrix(0.26458333,0,0,0.26458333,-251.79139,-115.92679)">
+      <path
+         fill="#111111"
+         stroke="none"
+         paint-order="stroke fill markers"
+         d="m 968.3475,446.5 a 8.3474999,8.3474999 0 1 1 0,-0.008"
+         id="path711"
+         style="fill:#cfbb50;fill-opacity:1" />
+      <path
+         fill="#ffe763"
+         stroke="none"
+         paint-order="stroke fill markers"
+         d="m 967.4025,446.5 a 7.4024999,7.4024999 0 1 1 0,-0.007"
+         id="path712" />
+      <path
+         fill="#111111"
+         stroke="none"
+         paint-order="stroke fill markers"
+         d="m 958.73998,444.92499 a 0.94499999,1.89 0 1 1 0,-0.002"
+         id="path717" />
+      <g
+         clip-path="url(#FEiUpeuWILNX)"
+         id="g718">
+        <path
+           fill="#eeeeee"
+           stroke="none"
+           paint-order="stroke fill markers"
+           d="m 959.36998,444.92499 a 0.94499999,0.94499999 0 1 1 0,-9.5e-4"
+           id="path718" />
+      </g>
+      <path
+         fill="none"
+         stroke="#111111"
+         paint-order="fill stroke markers"
+         d="m 958.73998,444.92499 a 0.94499999,1.89 0 1 1 0,-0.002"
+         stroke-linecap="round"
+         stroke-miterlimit="10"
+         stroke-width="0.315"
+         stroke-dasharray="none"
+         id="path719" />
+      <path
+         fill="#111111"
+         stroke="none"
+         paint-order="stroke fill markers"
+         d="m 963.15002,444.92499 a 0.94499999,1.89 0 1 1 0,-0.002"
+         id="path720" />
+      <g
+         clip-path="url(#KJccqrhLHDVS)"
+         id="g721">
+        <path
+           fill="#eeeeee"
+           stroke="none"
+           paint-order="stroke fill markers"
+           d="m 963.78002,444.92499 a 0.94499999,0.94499999 0 1 1 0,-9.5e-4"
+           id="path721" />
+      </g>
+      <path
+         fill="none"
+         stroke="#111111"
+         paint-order="fill stroke markers"
+         d="m 963.15002,444.92499 a 0.94499999,1.89 0 1 1 0,-0.002"
+         stroke-linecap="round"
+         stroke-miterlimit="10"
+         stroke-width="0.315"
+         stroke-dasharray="none"
+         id="path722" />
+      <path
+         fill="none"
+         stroke="#111111"
+         paint-order="fill stroke markers"
+         d="m 958.11,449.64999 q 1.89,1.575 3.78,0"
+         stroke-linecap="round"
+         stroke-miterlimit="10"
+         stroke-width="0.4725"
+         stroke-dasharray="none"
+         id="path723" />
+    </g>
+  </g>
+</svg>
