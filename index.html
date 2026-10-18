@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>caxtus.io</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* ==== Color Variables ==== */
+        :root {
+            --background-color: #000000;
+            --title-stroke-color: #000000;
+            --input-bg-color: #ffffff;
+            --input-text-color: #000000;
+            --input-border-color: #000000;
+            --button-bg-color: #26c214ff;
+            --button-border-color: #1d901599;
+            --button-hover-color: #28b717ff;
+            --craft-bg-color: #dba456ff;
+            --craft-border-color: #b07e3cff;
+            --craft-text-color: #ffffff;
+            
+            /* Settings Button Colors */
+            --settings-bg: #989898ff;
+            --settings-border: #767676ff;
+
+            /* Account Button Colors (Purple) */
+            --account-bg: #9f5cbaff;
+            --account-border: #8136a1ff;
+
+            /* Changelog Button Colors (Green) */
+            --changelog-bg: #9eb770ff; 
+            --changelog-border: #849761;
+
+            /* Minimap Colors */
+            --minimap-bg: #000000;
+            --minimap-border: #ffffff;
+            --minimap-label-color: #ffffff;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Ubuntu', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background: var(--background-color);
+            user-select: none;
+        }
+
+        /* === MENU LAYER === */
+        .menu-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.3s;
+        }
+
+        .menu-layer.hidden {
+            display: none; 
+        }
+
+        .menu-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            color: white;
+        }
+
+        /* === STYLIZED TEXT CLASS === */
+        .stylized-text {
+            user-select: none;
+            color: #ffffff;
+            text-shadow: 
+                -0.04em -0.04em 0 #000000,
+                 0.04em -0.04em 0 #000000,
+                -0.04em  0.04em 0 #000000,
+                 0.04em  0.04em 0 #000000,
+                -0.04em  0      0 #000000,
+                 0.04em  0      0 #000000,
+                 0      -0.04em 0 #000000,
+                 0       0.04em 0 #000000;
+        }
+
+        h1 {
+            font-size: 70px;
+            font-weight: 700; 
+            position: absolute;
+            top: -150px;
+            left: 60px;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 0;
+        }
+
+        /* === MAP SELECTOR === */
+        .map-selector {
+            position: absolute;
+            top: -70px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 26;
+        }
+
+        .arrow-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-family: 'Ubuntu', sans-serif;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            text-shadow: 2px 2px 0 #000;
+            transition: transform 0.1s, color 0.1s;
+            line-height: 1;
+            padding: 0 5px;
+        }
+
+        .arrow-btn:hover {
+            transform: scale(1.2);
+            color: #ddd;
+        }
+
+        .arrow-btn:active {
+            transform: scale(0.9);
+        }
+
+        .map-name {
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: capitalize;
+            min-width: 120px;
+            text-align: center;
+            user-select: none;
+        }
+
+        /* === GUEST LABEL === */
+        .guest-label {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-family: 'Ubuntu', sans-serif;
+            font-weight: 700;
+            font-size: 24px;
+            user-select: none;
+            z-index: 25;
+        }
+
+        /* Inputs & Play Button */
+        input {
+            padding: 6px 0px;
+            font-size: 20px;
+            border-radius: 5px;
+            border: 4.5px solid var(--input-border-color);
+            outline: none;
+            font-family: 'Ubuntu', sans-serif;
+            background: var(--input-bg-color);
+            color: var(--input-text-color);
+        }
+
+        input::placeholder {
+            color: var(--input-text-color);
+        }
+
+        .play-button {
+            padding: 4px 20px;
+            font-size: 22px;
+            color: #ffffff;
+            background-color: var(--button-bg-color);
+            border: 6px solid var(--button-border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0s, background-color 0s;
+            font-family: 'Ubuntu', sans-serif;
+        }
+
+        .play-button:hover {
+            transform: scale(1);
+            background-color: var(--button-hover-color);
+        }
+
+        /* === TRANSITION OVERLAY === */
+        .transition-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background-color: black;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100; 
+            pointer-events: none;
+        }
+
+        .transition-overlay.closing {
+            width: 250vmax;
+            height: 250vmax;
+            transition: width 0.5s ease-in-out, height 0.5s ease-in-out;
+        }
+
+        .transition-overlay.opening {
+            width: 0;
+            height: 0;
+            transition: width 0.5s ease-in-out, height 0.5s ease-in-out;
+        }
+
+        /* === SIDEBAR BUTTONS === */
+        .sidebar-btn {
+            position: fixed;
+            left: 10px;
+            padding: 0px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 20;
+            font-family: 'Ubuntu', sans-serif;
+            transition: transform 0.2s, opacity 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: none; 
+        }
+        
+        .sidebar-btn:hover {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .sidebar-btn svg {
+            display: block;
+        }
+
+        .settings-button {
+            top: 10px;
+            width: 37px;
+            height: 37px;
+            background-color: var(--settings-bg);
+            border: 3px solid var(--settings-border);
+            border-radius: 4px;
+            padding: 5px;
+            z-index: 101; 
+        }
+
+        /* --- ACCOUNT BUTTON --- */
+        .account-button {
+            top: 10px;
+            left: 55px; 
+            width: 37px;
+            height: 37px;
+            background-color: var(--account-bg);
+            border: 3px solid var(--account-border);
+            border-radius: 4px;
+            padding: 5px;
+            z-index: 101; 
+        }
+
+        /* --- CHANGELOG BUTTON --- */
+        .changelog-button {
+            top: 10px;
+            left: 100px;
+            width: 37px;
+            height: 37px;
+            background-color: var(--changelog-bg);
+            border: 3px solid var(--changelog-border);
+            border-radius: 4px;
+            padding: 5px;
+            z-index: 101;
+        }
+
+        /* --- MENU / RETURN BUTTON --- */
+        .menu-return-button {
+            top: 10px;
+            left: 145px;
+            width: 37px;
+            height: 37px;
+            background-color: #e74c3c; /* Red */
+            border: 3px solid #c0392b;
+            border-radius: 4px;
+            padding: 5px;
+            z-index: 101;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            display: none; /* Hidden on menu, shown in game */
+        }
+        
+        .menu-return-button:hover {
+            background-color: #ff5e4d;
+        }
+
+        .inventory-button {
+            bottom: 140px;
+            background-color: #4f91baff;
+            border: 4px solid #417697ff;
+        }
+
+        .middle-button {
+            bottom: 75px;
+            background-color: #c45959ff;
+            border: 4px solid #954545ff;
+        }
+
+        .craft-button {
+            bottom: 10px;
+            padding: 0px 8px;
+            font-size: 6px;
+            background-color: var(--craft-bg-color);
+            color: var(--craft-text-color);
+            border: 4px solid var(--craft-border-color);
+            z-index: 20;
+        }
+
+        /* === MINIMAP === */
+        .minimap-container {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 25;
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .minimap-content {
+            width: 150px;
+            height: 150px;
+            background-color: var(--minimap-bg);
+            border: 4px solid var(--minimap-border);
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .minimap-symbol {
+            font-size: 20px;
+            color: white;
+            font-weight: bold;
+            user-select: none;
+            opacity: 0.5;
+        }
+
+        .minimap-label {
+            color: var(--minimap-label-color);
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 5px;
+            text-shadow: 2px 2px 0 #000000;
+            font-family: 'Ubuntu', sans-serif;
+        }
+
+        /* === BACKGROUND STYLES === */
+        .svg-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-repeat: repeat;
+            background-size: 512px 512px; 
+            z-index: 1;
+            transition: background 0.3s ease;
+        }
+
+        .grid-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--title-stroke-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--title-stroke-color) 1px, transparent 1px);
+            background-size: 32px 32px;
+            background-position: center;
+            opacity: 0.2; 
+            z-index: 1;
+            display: none; 
+        }
+
+        /* === DROPDOWN MENUS (General) === */
+        .dropdown-menu {
+            position: fixed;
+            top: 60px; 
+            width: 250px;
+            border-radius: 5px;
+            display: none; 
+            flex-direction: column; 
+            z-index: 100;
+            font-family: 'Ubuntu', sans-serif;
+        }
+
+        .dropdown-menu.open {
+            display: flex;
+        }
+
+        /* === SETTINGS DROPDOWN MENU === */
+        .settings-menu {
+            left: 10px;
+            background-color: var(--settings-bg);
+            border: 4px solid var(--settings-border);
+            padding: 10px;
+            color: white;
+        }
+
+        .settings-title {
+            font-weight: bold;
+            font-size: 18px;
+            text-align: left;
+            margin-bottom: 10px;
+            margin-top: 0;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+            padding-bottom: 5px;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .setting-item {
+            background-color: rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 4px;
+            padding: 8px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            user-select: none;
+            margin-bottom: 5px; 
+        }
+        
+        .setting-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .setting-item:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .setting-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* === ACCOUNT DROPDOWN MENU === */
+        .account-menu {
+            left: 55px;
+            background-color: var(--account-bg);
+            border: 4px solid var(--account-border);
+            padding: 10px;
+            width: 230px;
+            box-sizing: border-box;
+        }
+
+        .account-title {
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .account-input {
+            width: 100%; 
+            margin: 0 auto 8px auto;
+            border: 2px solid #000;
+            box-sizing: border-box; 
+            font-size: 14px;
+            padding: 4px 8px;
+            display: block;
+        }
+
+        .account-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 100%;
+        }
+
+        .auth-btn {
+            background-color: #8e44ad; 
+            color: white;
+            border: 2px solid #6c3483;
+            padding: 6px;
+            border-radius: 4px;
+            font-family: 'Ubuntu', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+            box-sizing: border-box; 
+        }
+
+        .auth-btn:hover {
+            background-color: #7d3c98;
+        }
+
+        .logged-in-text {
+            color: white;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background-color: #c0392b; 
+            border-color: #962d22;
+        }
+        
+        .logout-btn:hover {
+            background-color: #a93226;
+        }
+
+        /* === INVENTORY DROPDOWN MENU === */
+        .inventory-menu {
+            left: 75px;
+            bottom: 10px;
+            top: auto;
+            width: 230px;
+            background-color: #4f91baff;
+            border: 4px solid #417697ff;
+            padding: 10px;
+            color: white;
+            min-height: 330px; 
+        }
+
+        .inventory-title {
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 10px;
+            margin-top: 0;
+            text-shadow: 1px 1px 0 #000;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+            padding-bottom: 5px;
+        }
+
+        .item-display-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .icon-stack {
+            position: relative;
+            width: 50px;
+            height: 50px;
+        }
+
+        .item-name {
+            margin-top: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            font-family: 'Ubuntu', sans-serif;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        /* === CHANGELOG DROPDOWN MENU === */
+        .changelog-menu {
+            left: 100px;
+            background-color: var(--changelog-bg);
+            border: 4px solid var(--changelog-border);
+            max-height: 350px;
+            overflow-y: auto;
+            padding: 0;
+            color: white;
+        }
+
+        .changelog-header {
+            background-color: rgba(0,0,0,0.1);
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+        }
+
+        .changelog-title {
+            font-weight: bold;
+            font-size: 18px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            margin: 0;
+        }
+
+        .close-changelog {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .changelog-content {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .changelog-entry {
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 10px;
+        }
+
+        .changelog-entry:last-child {
+            border-bottom: none;
+        }
+
+        .changelog-date {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 4px;
+            display: block;
+            color: #E8F5E9;
+        }
+
+        .changelog-item-text {
+            font-size: 13px;
+            margin: 2px 0;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .changelog-item-text::before {
+            content: "-";
+            position: absolute;
+            left: 0;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .changelog-footer {
+            font-size: 11px;
+            text-align: center;
+            font-style: italic;
+            opacity: 0.8;
+            padding: 10px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .changelog-menu::-webkit-scrollbar {
+            width: 8px;
+        }
+        .changelog-menu::-webkit-scrollbar-thumb {
+            background-color: rgba(255,255,255,0.3);
+            border-radius: 4px;
+        }
+
+        /* === GAME LAYER & PLAYER === */
+        #game-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            display: none; 
+            overflow: hidden;
+        }
+
+        #player {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 45px;  
+            height: 45px; 
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        /* === HOTBAR === */
+        .hotbar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            gap: 10px; 
+            z-index: 20;
+        }
+
+        .slot-row {
+            display: flex;
+            gap: 8px; 
+        }
+
+        .slot {
+            width: 45px; 
+            height: 45px;
+            background-color: #ffffff;
+            border: 3px solid #cccccc; 
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+
+        .slot-small {
+            width: 40px;
+            height: 40px;
+            background-color: #ffffff;
+            border: 2px solid #cccccc;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+
+        /* === CHAT BOX === */
+        .chat-box {
+            position: absolute; 
+            left: 70px;
+            bottom: 10px; 
+            width: 180px; 
+            height: 180px; 
+            border-radius: 5px;
+            display: flex; 
+            flex-direction: column;
+            padding: 5px;
+            font-family: 'Ubuntu', sans-serif;
+            user-select: text;
+            font-size: 12px; 
+            z-index: 30; 
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid #555;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            padding: 5px;
+            color: white;
+            font-size: 12px; 
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 4px; 
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background-color: #888;
+            border-radius: 2px;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 5px;
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 4px; 
+            border: 2px solid #000000ff;
+            border-radius: 4px;
+            background-color: white;
+            color: black;
+            font-family: 'Ubuntu', sans-serif;
+            outline: none;
+            font-size: 12px;
+        }
+
+    </style>
+</head>
+
+<body>
+    
+    <!-- TRANSITION OVERLAY -->
+    <div class="transition-overlay" id="transition-overlay"></div>
+
+    <!-- BACKGROUNDS -->
+    <div class="svg-background" id="svg-bg"></div>
+    <div class="grid-background" id="grid-bg"></div>
+    
+    <!-- GAME LAYER -->
+    <div id="game-layer">
+        <!-- Player SVG -->
+        <div id="player">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="76.34868" height="76.34868" viewBox="0,0,76.34868,76.34868">
+                <g transform="translate(-201.82566,-141.82566)">
+                    <g data-paper-data="{&quot;isPaintingLayer&quot;:true}" fill-rule="nonzero" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" style="mix-blend-mode: normal">
+                        <!-- Face -->
+                        <path d="M240,216.17434c-19.97853,0 -36.17434,-16.1958 -36.17434,-36.17434c0,-19.97853 16.1958,-36.17434 36.17434,-36.17434c19.97853,0 36.17434,16.1958 36.17434,36.17434c0,19.97853 -16.1958,36.17434 -36.17434,36.17434z" data-paper-data="{&quot;index&quot;:null}" fill="#ffe763" stroke="#cfbb50" stroke-width="4" stroke-linecap="butt"/>
+                        
+                        <!-- Left Eye (Black) -->
+                        <path d="M249.90559,163.02471c1.65637,0 4.72204,2.34072 4.72204,9.20904c0,7.42167 -3.06566,9.65172 -4.72204,9.65172c-1.65638,0 -4.47933,-2.89388 -4.37746,-9.65172c0.08851,-5.87158 2.72108,-9.20904 4.37746,-9.20904z" data-paper-data="{&quot;index&quot;:null}" fill="#000000" stroke="none" stroke-width="0" stroke-linecap="butt"/>
+                        
+                        <!-- Right Eye (Black) -->
+                        <path d="M229.74367,162.93385c1.65638,0 4.72204,2.34072 4.72204,9.20904c0,7.42168 -3.06567,9.65172 -4.72204,9.65172c-1.65637,0 -4.47934,-2.89388 -4.37746,-9.65172c0.08851,-5.87158 2.72109,-9.20904 4.37746,-9.20904z" data-paper-data="{&quot;index&quot;:null}" fill="#000000" stroke="none" stroke-width="0" stroke-linecap="butt"/>
+                        
+                        <!-- Left Eye Outline -->
+                        <path d="M229.66748,163.49872c1.56879,0 4.47236,2.21696 4.47236,8.72212c0,7.02926 -2.90357,9.14139 -4.47236,9.14139c-1.5688,0 -4.2425,-2.74087 -4.14601,-9.14139c0.08384,-5.56113 2.57722,-8.72212 4.14601,-8.72212z" data-paper-data="{&quot;index&quot;:null}" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt"/>
+                        
+                        <!-- Pupils (White) -->
+                        <g data-paper-data="{&quot;index&quot;:null}" fill="#ffffff" stroke="none" stroke-width="0" stroke-linecap="butt">
+                            <path d="M250.02924,176.90573c-2.39372,0 -4.33422,-1.9405 -4.33422,-4.33422c0,-2.39373 1.9405,-4.33422 4.33422,-4.33422c2.39373,0 4.33422,1.9405 4.33422,4.33422c0,2.39373 -1.9405,4.33422 -4.33422,4.33422z" id="eye-right"/>
+                            <path d="M229.76359,176.68933c-2.39373,0 -4.33422,-1.9405 -4.33422,-4.33422c0,-2.39373 1.9405,-4.33422 4.33422,-4.33422c2.39372,0 4.33422,1.9405 4.33422,4.33422c0,2.39373 -1.9405,4.33422 -4.33422,4.33422z" id="eye-left"/>
+                        </g>
+                        
+                        <!-- Eye Highlights/Glints -->
+                        <path d="M229.50656,160.43146c2.71951,0 7.75284,2.99524 7.75284,11.78409c0,9.49694 -5.03334,12.35055 -7.75284,12.35055c-2.7195,0 -7.35435,-3.70308 -7.18709,-12.35055c0.14533,-7.5134 4.46759,-11.78409 7.18709,-11.78409z" data-paper-data="{&quot;index&quot;:null}" fill="none" stroke="#ffe763" stroke-width="6.5" stroke-linecap="butt"/>
+                        <path d="M249.88459,160.45703c2.7195,0 7.75284,2.99524 7.75284,11.78409c0,9.49694 -5.03334,12.35055 -7.75284,12.35055c-2.7195,0 -7.35435,-3.70307 -7.18709,-12.35055c0.14533,-7.51341 4.46759,-11.78409 7.18709,-11.78409z" data-paper-data="{&quot;index&quot;:null}" fill="none" stroke="#ffe763" stroke-width="6.5" stroke-linecap="butt"/>
+                        
+                        <!-- Left Eye Inner Stroke -->
+                        <path d="M249.93314,163.5617c1.56879,0 4.47236,2.21696 4.47236,8.72212c0,7.02926 -2.90357,9.14139 -4.47236,9.14139c-1.5688,0 -4.2425,-2.74087 -4.14601,-9.14139c0.08384,-5.56113 2.57722,-8.72212 4.14601,-8.72212z" data-paper-data="{&quot;index&quot;:null}" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt"/>
+                        <path d="M229.66748,163.49872c1.56879,0 4.47236,2.21696 4.47236,8.72212c0,7.02926 -2.90357,9.14139 -4.47236,9.14139c-1.5688,0 -4.2425,-2.74087 -4.14601,-9.14139c0.08384,-5.56113 2.57722,-8.72212 4.14601,-8.72212z" data-paper-data="{&quot;index&quot;:null}" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt"/>
+                        
+                        <!-- Mouth -->
+                        <path d="M248.64154,194.27974c0,0 -3.3172,3.9839 -8.20809,3.84246c-5.52631,-0.15983 -8.85823,-3.9267 -8.85823,-3.9267" data-paper-data="{&quot;index&quot;:null}" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round"/>
+                        
+                        <!-- Extra Nose Patch? -->
+                        <path d="M239.70422,168.90998l-16.61062,-13.75072l34.96139,0.32949z" data-paper-data="{&quot;index&quot;:null}" fill="#ffe763" stroke="none" stroke-width="0" stroke-linecap="butt"/>
+                    </g>
+                </g>
+            </svg>
+        </div>
+
+        <!-- CHAT BOX (Inside Game Layer) -->
+        <div class="chat-box" id="chat-box">
+            <div class="chat-messages" id="chat-messages">
+                <div style="font-style:italic; opacity: 0.6;">Welcome to chat!</div>
+            </div>
+            <div class="chat-input-row">
+                <input type="text" class="chat-input" id="chat-input" placeholder="Press Enter">
+            </div>
+        </div>
+
+        <!-- Hotbar -->
+        <div class="hotbar" id="hotbar">
+            <div class="slot-row" id="top-row">
+                <div class="slot"></div>
+                <div class="slot"></div>
+                <div class="slot"></div>
+                <div class="slot"></div>
+                <div class="slot"></div>
+            </div>
+            <div class="slot-row" id="bottom-row">
+                <div class="slot-small"></div>
+                <div class="slot-small"></div>
+                <div class="slot-small"></div>
+                <div class="slot-small"></div>
+                <div class="slot-small"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MENU LAYER -->
+    <div class="menu-layer" id="menu-layer">
+        <div class="guest-label stylized-text" id="top-right-label">Guest #<span id="random-number"></span></div>
+
+        <div class="menu-container">
+            <h1 class="stylized-text">caxtus.io</h1>
+            
+            <!-- MAP SELECTOR -->
+            <div class="map-selector stylized-text">
+                <button class="arrow-btn" id="map-left">&lt;</button>
+                <span class="map-name" id="map-name">Desert</span>
+                <button class="arrow-btn" id="map-right">&gt;</button>
+            </div>
+
+            <div class="name-row"> 
+                <input type="text" placeholder=""> 
+                <button class="play-button" id="start-btn">Play</button> 
+            </div>
+        </div>
+    </div>
+
+    <!-- MINIMAP (Only shows in game) -->
+    <div class="minimap-container" id="minimap">
+        <div class="minimap-content" id="minimap-content">
+            <span class="minimap-symbol">?</span>
+        </div>
+        <div class="minimap-label">Maze</div>
+    </div>
+
+    <!-- SIDEBAR BUTTONS -->
+    
+    <!-- INVENTORY BUTTON -->
+    <button class="sidebar-btn inventory-button" id="inventory-trigger" aria-label="Inventory"> 
+        <svg viewBox="0 0 24 24" width="33" height="47" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+            <g id="SVGRepo_iconCarrier"> 
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M12.4856 1.12584C12.1836 0.958052 11.8164 0.958052 11.5144 1.12584L2.51436 6.12584L2.5073 6.13784L2.49287 6.13802C2.18749 6.3177 2 6.64568 2 7V16.9999C2 17.3631 2.19689 17.6977 2.51436 17.874L11.5022 22.8673C11.8059 23.0416 12.1791 23.0445 12.4856 22.8742L21.4856 17.8742C21.8031 17.6978 22 17.3632 22 17V7C22 6.64568 21.8125 6.31781 21.5071 6.13813C21.4996 6.13372 21.4921 6.12942 21.4845 6.12522L12.4856 1.12584ZM5.05923 6.99995L12.0001 10.856L14.4855 9.47519L7.74296 5.50898L5.05923 6.99995ZM16.5142 8.34816L18.9409 7L12 3.14396L9.77162 4.38195L16.5142 8.34816ZM4 16.4115V8.69951L11 12.5884V20.3004L4 16.4115ZM13 20.3005V12.5884L20 8.69951V16.4116L13 20.3005Z" fill="#ffffff"/> 
+            </g>
+        </svg> 
+    </button> 
+
+    <button class="sidebar-btn middle-button" aria-label="Middle">
+        <svg width="33" height="47" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" fill="#000000">
+            <g id="SVGRepo_bgCarrier stroke-width="0" />
+            <g id="SVGRepo_tracerCarrier stroke-linecap="round" stroke-linejoin="round" />
+            <g id="SVGRepo_iconCarrier">
+                <path fill="#ffffff" d="M221.75 17.813c-2.866.013-5.723.092-8.594.25C94.004 24.596 10.79 136.428 17.436 251.155 25.995 398.813 164.3 501.693 306.315 492.562h.03c68.975-4.446 134.884-33.45 186.063-79.562l4.344-3.906-1.625-5.625-29.844-102.595-1.217-4.188-3.97-1.75L378 258.594c14.594-24.457 22.398-53.31 21-82.563-4.3-89.976-83.124-154.5-168.656-158.06-2.85-.12-5.728-.17-8.594-.157zm.125 18.687c1.174-.007 2.36.015 3.53.03L218.5 81.28l-.28 1.75.155.626c-26.733 2.106-53.554 11.503-75.875 28.438l-14.375-47.28c25.05-16.172 54.175-26.346 86.063-28.095 2.567-.142 5.13-.205 7.687-.22zm22.25 1.406c38.27 5.08 74 23.623 99.28 51.375l-34 19.94-.374.218c-19.422-15.903-44.874-24.69-71.592-26.063l-.22-.938 6.907-44.53zm-132 38.5l14.344 47.25.624 2.094c-14.64 15.204-26.215 34.55-32.844 58.125-.675 2.4-1.285 4.79-1.875 7.156l-40.47-33.218c13.17-31.817 33.873-60.15 60.22-81.406zM355.25 104.03c14.607 20.833 23.788 45.562 25.094 72.876.025.52.044 1.044.062 1.563l-35.844 2.874c-.124-2.074-.265-4.16-.5-6.25-2.332-20.82-10.02-38.198-21.343-52.03l32.53-19.033zm-116.125 44.94c2.345.038 4.665.25 6.97.593l-1.47 39.28c-4.208.59-8.338 1.873-12.22 3.907l-43.718-17.813c11.268-15.01 28.152-25.316 47.938-25.937.834-.026 1.668-.045 2.5-.03zm25.47 6.843c14.38 7.937 24.832 22.162 25.217 39.343.145 6.436-1.438 13.01-4.218 18.75-1.47-4.27-3.73-8.338-6.813-12-4.44-5.274-10.04-9.043-16.092-11.22l.593.033 1.314-34.907zm-219.44 20.625l43.032 35.375c-3.903 25.766-2.57 49.148 2.97 69.968L39 275.22c-1.418-8.22-2.41-16.602-2.906-25.158-1.455-25.12 1.79-50.093 9.062-73.625zm134.282 14.875l38.032 15.562c-4.74 7.95-6.338 17.343-4.657 26.313l-28.844 25.125c-6.018-10.772-9.68-22.974-10.157-36.188-.384-10.633 1.657-21.176 5.625-30.813zm200.22 5.937c-3.353 28.986-16.63 56.285-36.75 76.22L321 251.56c13.37-13.268 21.052-31.418 23.188-51.437l35.468-2.875zm-159 53.875c7.497 11.248 19.977 18.867 33.124 21.53l2.782 32.376c-23.827-2.664-46.187-14.117-61.656-31.436l25.75-22.47zm85.28 11.813l22.625 22.625c-15.317 10.92-33.362 18.028-53.25 19.656l-2.718-32c12.847-1.323 23.948-4.934 33.344-10.283zM43.22 294.594l54.718 6.875c9.884 23.128 25.378 42.458 44.593 57.75l-53.936 22.405c-20.91-25.13-36.706-54.492-45.375-87.03zM448.06 310.03l.47.22 26.906 92.563c-30.294 26.24-65.746 46.28-103.688 58.406l8.594-87.033.156-1.562c26.19-14.795 49.554-35.547 67.563-62.594zm-287.28 61.876c26.235 15.822 57.278 25.373 89.593 28.156l-44 61c-39.634-13.116-75.807-35.403-104.53-64.718l58.936-24.438zm199.968 10.53l-8.344 84.22c-15.49 3.766-31.305 6.222-47.28 7.25-27.044 1.742-53.936-.874-79.688-7.312l45.656-63.344 1.72-2.375c29.813-.32 60.02-6.33 87.936-18.438z" />
+            </g>
+        </svg>
+    </button> 
+
+    <!-- SETTINGS BUTTON -->
+    <button class="sidebar-btn settings-button" id="settings-trigger" aria-label="Settings"> 
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="#ffffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M12.9046 3.06005C12.6988 3 12.4659 3 12 3C11.5341 3 11.3012 3 11.0954 3.06005C10.7942 3.14794 10.5281 3.32808 10.3346 3.57511C10.2024 3.74388 10.1159 3.96016 9.94291 4.39272C9.69419 5.01452 9.00393 5.33471 8.36857 5.123L7.79779 4.93281C7.39290 4.79785 7.19045 4.73036 6.99196 4.7188C6.70039 4.70181 6.41020 4.77032 6.15701 4.9159C5.98465 5.01501 5.83376 5.16591 5.53197 5.4677C5.21122 5.78845 5.05084 5.94882 4.94896 6.13189C4.79927 6.40084 4.73595 6.70934 4.76759 7.01551C4.78912 7.22390 4.87335 7.43449 5.04182 7.85566C5.30565 8.51523 5.05184 9.26878 4.44272 9.63433L4.16521 9.80087C3.74031 10.0558 3.52786 10.1833 3.37354 10.3588C3.23698 10.5141 3.13401 10.696 3.07109 10.893C3 11.1156 3 11.3658 3 11.8663C3 12.4589 3 12.7551 3.09462 13.0088C3.17823 13.2329 3.31422 13.4337 3.49124 13.5946C3.69158 13.7766 3.96395 13.8856 4.50866 14.1035C5.06534 14.3261 5.35196 14.9441 5.16236 15.5129L4.94721 16.1584C4.79819 16.6054 4.72367 16.829 4.7169 17.0486C4.70875 17.3127 4.77049 17.5742 4.89587 17.8067C5.00015 18.0002 5.16678 18.1668 5.5 18.5C5.83323 18.8332 5.99985 18.9998 6.19325 19.1041C6.42580 19.2295 6.68733 19.2913 6.95140 19.2831C7.17102 19.2763 7.39456 19.2018 7.84164 19.0528L8.36862 18.8771C9.00393 18.6654 9.69420 18.9855 9.94291 19.6073C10.1159 20.0398 10.2024 20.2561 10.3346 20.4249C10.5281 20.6719 10.7942 20.8521 11.0954 20.94C11.3012 21 11.5341 21 12 21C12.4659 21 12.6988 21 12.9046 20.94C13.2058 20.8521 13.4719 20.6719 13.6654 20.4249C13.7976 20.2561 13.8841 20.0398 14.0571 19.6073C14.3058 18.9855 14.9961 18.6654 15.6313 18.8773L16.1579 19.0529C16.6050 19.2019 16.8286 19.2764 17.0482 19.2832C17.3123 19.2913 17.5738 19.2296 17.8063 19.1042C17.9997 18.9999 18.1664 18.8333 18.4996 18.5001C18.8328 18.1669 18.9994 18.0002 19.1037 17.8068C19.2291 17.5743 19.2908 17.3127 19.2827 17.0487C19.2759 16.8291 19.2014 16.6055 19.0524 16.1584L18.8374 15.5134C18.6477 14.9444 18.9344 14.3262 19.4913 14.1035C20.0360 13.8856 20.3084 13.7766 20.5088 13.5946C20.6858 13.4337 20.8218 13.2329 20.9054 13.0088C21 12.7551 21 12.7551 21 11.8663C21 11.3658 21 11.1156 20.9289 10.893C20.8660 10.696 20.763 10.5141 20.6265 10.3588C20.4721 10.1833 20.2597 10.0558 19.8348 9.80087L19.5569 9.63416C18.9478 9.26867 18.6939 8.51514 18.9578 7.85558C19.1262 7.43443 19.2105 7.22383 19.2320 7.01543C19.2636 6.70926 19.2003 6.40077 19.0506 6.13181C18.9487 5.94875 18.7884 5.78837 18.4676 5.46762C18.1658 5.16584 18.0149 5.01494 17.8426 4.91583C17.5894 4.77024 17.2992 4.70174 17.0076 4.71872C16.8091 4.73029 16.6067 4.79777 16.2018 4.93273L15.6314 5.12287C14.9961 5.33464 14.3058 5.01450 14.0571 4.39272C13.8841 3.96016 13.7976 3.74388 13.6654 3.57511C13.4719 3.32808 13.2058 3.14794 12.9046 3.06005Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg> 
+    </button> 
+
+    <!-- ACCOUNT BUTTON -->
+    <button class="sidebar-btn account-button" id="account-trigger" aria-label="Account"> 
+        <svg fill="#ffffff" width="24" height="24" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 15.503A5.041 5.041 0 1 0 16 5.42a5.041 5.041 0 0 0 0 10.083zm0 2.215c-6.703 0-11 3.699-11 5.5v3.363h22v-3.363c0-2.178-4.068-5.5-11-5.5z"/>
+        </svg> 
+    </button> 
+
+    <!-- CHANGELOG BUTTON -->
+    <button class="sidebar-btn changelog-button" id="changelog-trigger" aria-label="Changelog">
+        <svg fill="#ffffff" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="800px" height="800px" viewBox="-5.79 -5.79 108.08 108.08" xml:space="preserve" stroke="#ffffff" stroke-width="2.7984999999999998">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+            <g id="SVGRepo_iconCarrier"> <g> <g> <path d="M84.5,10.495c-0.344,0-0.684,0.023-1.02,0.052c-0.084-0.023-0.166-0.052-0.256-0.052H34c-6.617,0-12,5.383-12,12v50.51H1 c-0.553,0-1,0.446-1,1c0,6.616,5.383,12,12,12c0.246,0,0.464-0.1,0.638-0.246c0.174,0.146,0.392,0.246,0.638,0.246H62.5 c6.617,0,12-5.384,12-12c0-0.09-0.029-0.172-0.051-0.254c0.021-0.084,0.051-0.164,0.051-0.255v-3.25v-46.75h21 c0.553,0,1-0.447,1-1C96.5,15.878,91.117,10.495,84.5,10.495z M94.449,21.495H74.551c0.504-5.046,4.773-9,9.949-9 S93.945,16.449,94.449,21.495z M13.276,84.005c-0.246,0-0.464,0.102-0.638,0.246c-0.174-0.146-0.392-0.246-0.638-0.246 c-5.176,0-9.446-3.955-9.949-9h48.5c0.312,3.754,2.354,7.021,5.33,9H13.276z M62.5,84.005c-5.514,0-10-4.484-10-10 c0-0.554-0.447-1-1-1H24v-50.51c0-5.514,4.486-10,10-10h43.881c-3.238,2.151-5.381,5.828-5.381,10v47.75v3.25 c0,0.09,0.029,0.172,0.051,0.254c-0.021,0.084-0.051,0.164-0.051,0.254C72.5,79.519,68.014,84.005,62.5,84.005z"/> <path d="M63.75,64.245h-28c-0.553,0-1,0.445-1,1c0,0.553,0.447,1,1,1h28c0.553,0,1-0.447,1-1 C64.75,64.69,64.303,64.245,63.75,64.245z"/> <path d="M63.75,54.245h-28c-0.553,0-1,0.445-1,1c0,0.553,0.447,1,1,1h28c0.553,0,1-0.447,1-1 C64.75,54.69,64.303,54.245,63.75,54.245z"/> <path d="M63.75,44.245h-28c-0.553,0-1,0.447-1,1c0,0.553,0.447,1,1,1h28c0.553,0,1-0.447,1-1 C64.75,44.692,64.303,44.245,63.75,44.245z"/> <path d="M63.75,34.245h-28c-0.553,0-1,0.447-1,1c0,0.553,0.447,1,1,1h28c0.553,0,1-0.447,1-1 C64.75,34.692,64.303,34.245,63.75,34.245z"/> <path d="M63.75,24.245h-28c-0.553,0-1,0.447-1,1c0,0.553,0.447,1,1,1h28c0.553,0,1-0.447,1-1 C64.75,24.692,64.303,24.245,63.75,24.245z"/> </g> </g> </g>
+        </svg>
+    </button>
+
+    <!-- MENU / RETURN BUTTON -->
+    <button class="sidebar-btn menu-return-button" id="menu-return-btn" aria-label="Return to Menu">
+        X
+    </button>
+
+    <!-- CRAFT BUTTON -->
+    <button class="sidebar-btn craft-button" aria-label="Craft"> 
+        <svg viewBox="0 0 48 48" width="33" height="47" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="4" height="48" fill="white" fill-opacity="0.01" />
+            <path d="M24 12C26.2091 12 28 10.2091 28 8C28 5.79086 26.2091 4 24 4C21.7909 4 20 5.79086 20 8C20 10.2091 21.7909 12 24 12Z" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M24 28C26.2091 28 28 26.2091 28 24C28 21.7909 26.2091 20 24 20C21.7909 20 20 21.7909 20 24C20 26.2091 21.7909 28 24 28Z" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M34.3926 18C35.4972 19.9132 37.9435 20.5687 39.8567 19.4641C41.7699 18.3595 42.4254 15.9132 41.3208 14C40.2162 12.0868 37.7699 11.4313 35.8567 12.5359C33.9435 13.6405 33.288 16.0868 34.3926 18Z" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M34.3926 30C33.288 31.9132 33.9435 34.3595 35.8567 35.4641C37.7699 36.5687 40.2162 35.9132 41.3208 34C42.4254 32.0868 41.7699 29.6405 39.8567 28.5359C37.9435 27.4313 35.4972 28.0868 34.3926 30Z" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M24 36C21.7909 36 20 37.7909 20 40C20 42.2091 21.7909 44 24 44C26.2091 44 28 42.2091 28 40C28 37.9909 26.2091 36 24 36Z" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M13.6079 30C12.5033 28.0868 10.0570 27.4313 8.14379 28.5359C6.23062 29.6405 5.57512 32.0868 6.67969 34C7.78426 35.9132 10.2306 36.5687 12.1438 35.4641C14.0570 34.3595 14.7125 31.9125 13.6079 30Z" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M13.6079 18C14.7125 16.0868 14.0570 13.6405 12.1438 12.5359C10.2306 11.4313 7.78426 12.0868 6.67969 14C5.57512 15.9132 6.23062 18.3595 8.14379 19.4641C10.0570 20.5687 12.5033 19.9132 13.6079 18Z" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg> 
+    </button>
+
+    <!-- SETTINGS DROPDOWN MENU -->
+    <div class="dropdown-menu settings-menu" id="settings-menu">
+        <h3 class="settings-title">Settings</h3>
+        
+        <!-- Keyboard movement -->
+        <div class="setting-item">
+            <span>Keyboard movement</span>
+            <input type="checkbox" id="opt-keyboard" checked>
+        </div>
+    </div>
+
+    <!-- ACCOUNT DROPDOWN MENU -->
+    <div class="dropdown-menu account-menu" id="account-menu">
+        
+        <!-- LOGGED IN VIEW (Hidden by default) -->
+        <div id="account-logged-in-view" style="display: none;">
+            <div class="account-title">Account</div>
+            <div class="logged-in-text">Logged in as: <span id="display-username"></span></div>
+            <button class="auth-btn logout-btn" id="logout-btn">Log out</button>
+        </div>
+
+        <!-- FORM VIEW (Visible by default) -->
+        <div id="account-form-view">
+            <div class="account-title">Account</div>
+            <input type="text" id="username-input" class="account-input" placeholder="">
+            <input type="password" id="password-input" class="account-input" placeholder="">
+            <div class="account-buttons">
+                <button class="auth-btn create-btn">Create Account</button>
+                <button class="auth-btn login-btn">Login</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- INVENTORY DROPDOWN MENU -->
+    <div class="dropdown-menu inventory-menu" id="inventory-menu">
+        <h3 class="inventory-title">Inventory</h3>
+        
+        <!-- NEW ITEM DISPLAY CONTAINER -->
+        <div class="item-display-container">
+            <div class="icon-stack">
+                <!-- Common Rarity Box SVG (Background) -->
+                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50" height="50" viewBox="0,0,68.66366,68.66366">
+                    <g transform="translate(-205.66817,-145.66817)">
+                        <g data-paper-data="{&quot;isPaintingLayer&quot;:true}" fill="#7eef6d" fill-rule="nonzero" stroke="#66c258" stroke-width="7" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" style="mix-blend-mode: normal">
+                            <path d="M209.16817,207.12381c0,-1.30749 0,-2.9155 0,-4.75c0,-14.69503 0,-43.92304 0,-49.6337c0,-2.05305 1.09206,-3.57194 3.14511,-3.57194c6.20996,0 43.77774,0 55.21621,0c2.13103,0 3.30233,1.45453 3.30233,3.58555c0,6.38481 0,42.0619 0,54.10606c0,2.34515 -1.70719,3.97205 -4.05233,3.97205c-6.70489,0 -42.1988,0 -53.88051,0c-2.34532,0 -3.73082,-1.77553 -3.73082,-3.70802z"/>
+                        </g>
+                    </g>
+                </svg>
+                
+                <!-- Basic Petal SVG (Centered Overlay) -->
+                <svg version="0.2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" viewBox="0,0,34.94504,34.94504" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                    <g transform="translate(-222.52748,-162.52748)">
+                        <g data-paper-data="{&quot;isPaintingLayer&quot;:true}" fill="#ffffff" fill-rule="nonzero" stroke="#cecece" stroke-width="5" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" style="mix-blend-mode: normal">
+                            <path d="M225.02748,180c0,-8.26909 6.70343,-14.97252 14.97252,-14.97252c8.26909,0 14.97252,6.70343 14.97252,14.97252c0,8.26909 -6.70343,14.97252 -14.97252,14.97252c-8.26909,0 -14.97252,-6.70343 -14.97252,-14.97252z"/>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+            <!-- Item Name -->
+            <div class="item-name">Basic</div>
+        </div>
+
+    </div>
+
+    <!-- CHANGELOG DROPDOWN MENU -->
+    <div class="dropdown-menu changelog-menu" id="changelog-menu">
+        <div class="changelog-header">
+            <div class="changelog-title">Changelog</div>
+            <button class="close-changelog" id="close-changelog">×</button>
+        </div>
+        <div class="changelog-content" id="changelog-content">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <script>
+        // === MAP DATA ===
+        const MAPS = [
+            {
+                name: "Garden",
+                svg: `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="511.25526" height="511.25525" viewBox="0,0,511.25526,511.25525">
+  <g transform="translate(23.85978,83.03773)">
+    <g data-paper-data="{&quot;isPaintingLayer&quot;:true}" fill-rule="nonzero" stroke="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" style="mix-blend-mode: normal">
+      <g>
+        <path d="" fill="#9966ff" stroke-width="0"/>
+        <g stroke-width="1">
+          <path d="M-23.85978,428.21752v-256h256v256z" fill="#1ea761"/>
+          <path d="M207.94022,295.01752c0.6,5 -2.7,7.6 -7.4,5.6c-4.7,-2 -5.2,-6.1 -1.2,-9.2c4.1,-3 8,-1.4 8.6,3.6z" fill="#1c9e5b"/>
+          <path d="M147.14022,277.11752c-1.6,5.3 -6,6.3 -9.7,2.3l-12.5,-13.2c-3.8,-4 -2.5,-8.3 2.9,-9.6l17.7,-4.2c5.4,-1.3 8.4,2 6.9,7.3z" fill="#1c9e5b"/>
+          <path d="M29.84022,225.11752c2,5.1 -0.8,8.6 -6.2,7.8l-24.9,-3.7c-5.4,-0.8 -7.1,-5 -3.6,-9.3l15.7,-19.6c3.4,-4.3 7.9,-3.6 9.9,1.5z" fill="#1c9e5b"/>
+          <path d="M195.24022,206.91752c-2.1,4.4 -6,4.8 -8.8,0.8c-2.8,-4 -1.1,-7.6 3.7,-8c4.9,-0.5 7.2,2.7 5.1,7.2z" fill="#1c9e5b"/>
+          <path d="M163.24022,367.41752c-3,4.6 -7.5,4.3 -10,-0.6l-3.5,-7c-2.5,-4.9 0,-8.7 5.5,-8.3l7.8,0.5c5.5,0.3 7.5,4.3 4.5,8.9z" fill="#1c9e5b"/>
+          <path d="M28.34022,410.41752c-1.6,5.3 -6,6.3 -9.7,2.3l-11,-11.6c-3.8,-4 -2.5,-8.3 2.9,-9.6l15.6,-3.7c5.4,-1.3 8.4,2 6.9,7.3z" fill="#1c9e5b"/>
+          <path d="M41.44022,339.21752c2.9,4.1 1.1,7.8 -3.8,8.3c-4.9,0.5 -7.4,-2.9 -5.2,-7.5c2,-4.6 6.1,-4.9 9,-0.8z" fill="#1c9e5b"/>
+          <path d="M99.64022,316.21752c0,5.5 -3.9,7.8 -8.7,5l-5.1,-3c-4.8,-2.8 -4.8,-7.2 0,-10l5.1,-3c4.8,-2.8 8.7,-0.5 8.7,5z" fill="#1c9e5b"/>
+          <path d="M86.64022,362.11752c-0.8,5.4 -5,7.1 -9.3,3.6l-3,-2.4c-4.3,-3.4 -3.6,-7.9 1.5,-9.9l3.5,-1.4c5.1,-2 8.6,0.8 7.8,6.3z" fill="#1fad64"/>
+          <path d="M10.64022,367.01752c-2.2,3.8 -5.8,3.8 -8,0c-2.2,-3.8 -0.4,-6.9 4,-6.9c4.4,0 6.2,3.1 4,6.9z" fill="#1fad64"/>
+          <path d="M13.84022,284.91752c2.2,4.4 0,7.8 -5,7.5c-5,-0.3 -6.8,-3.9 -4,-8.1c2.7,-4.1 6.7,-3.9 9,0.6z" fill="#1fad64"/>
+          <path d="M72.34022,274.81752c-5.3,-1.3 -6.6,-5.6 -2.8,-9.6l4.3,-4.5c3.8,-4 8.2,-2.9 9.7,2.4l1.7,6c1.5,5.3 -1.6,8.5 -6.9,7.2z" fill="#1fad64"/>
+          <path d="M206.14022,251.91752c-0.3,5.5 -4.3,7.5 -8.9,4.6l-0.7,-0.5c-4.6,-3 -4.4,-7.5 0.5,-10l0.8,-0.4c4.9,-2.5 8.7,-0.1 8.4,5.4z" fill="#1fad64"/>
+          <path d="M97.04022,221.41752c-5.3,1.4 -8.5,-1.8 -7.1,-7.1l2.3,-8.5c1.4,-5.3 5.8,-6.5 9.7,-2.6l6.2,6.2c3.9,3.9 2.7,8.2 -2.6,9.7z" fill="#1fad64"/>
+          <path d="M198.54022,389.71752c0.7,5.5 -2.9,8.2 -8,6l-4.5,-1.9c-5.1,-2.1 -5.6,-6.6 -1.3,-9.9l3.9,-3c4.4,-3.3 8.5,-1.6 9.2,3.9z" fill="#1fad64"/>
+          <path d="M155.54022,326.41752c-5,-0.5 -6.7,-4.3 -3.7,-8.3c3,-4 7,-3.6 9.1,1c2.1,4.6 -0.4,7.9 -5.4,7.3z" fill="#1fad64"/>
+          <path d="M110.54022,397.81752c0.3,5.2 -3.2,7.5 -7.8,5.2c-4.6,-2.3 -4.9,-6.5 -0.6,-9.4c4.3,-2.8 8.1,-0.9 8.4,4.2z" fill="#1c9e5b"/>
+        </g>
+        <g stroke-width="1">
+          <path d="M-23.85978,428.21752v-256h256v256z" fill="#1ea761"/>
+          <path d="M207.94022,295.01752c0.6,5 -2.7,7.6 -7.4,5.6c-4.7,-2 -5.2,-6.1 -1.2,-9.2c4.1,-3 8,-1.4 8.6,3.6z" fill="#1c9e5b"/>
+          <path d="M147.14022,277.11752c-1.6,5.3 -6,6.3 -9.7,2.3l-12.5,-13.2c-3.8,-4 -2.5,-8.3 2.9,-9.6l17.7,-4.2c5.4,-1.3 8.4,2 6.9,7.3z" fill="#1c9e5b"/>
+          <path d="M29.84022,225.11752c2,5.1 -0.8,8.6 -6.2,7.8l-24.9,-3.7c-5.4,-0.8 -7.1,-5 -3.6,-9.3l15.7,-19.6c3.4,-4.3 7.9,-3.6 9.9,1.5z" fill="#1c9e5b"/>
+          <path d="M195.24022,206.91752c-2.1,4.4 -6,4.8 -8.8,0.8c-2.8,-4 -1.1,-7.6 3.7,-8c4.9,-0.5 7.2,2.7 5.1,7.2z" fill="#1c9e5b"/>
+          <path d="M163.24022,367.41752c-3,4.6 -7.5,4.3 -10,-0.6l-3.5,-7c-2.5,-4.9 0,-8.7 5.5,-8.3l7.8,0.5c5.5,0.3 7.5,4.3 4.5,8.9z" fill="#1c9e5b"/>
+          <path d="M28.34022,410.41752c-1.6,5.3 -6,6.3 -9.7,2.3l-11,-11.6c-3.8,-4 -2.5,-8.3 2.9,-9.6l15.6,-3.7c5.4,-1.3 8.4,2 6.9,7.3z" fill="#1c9e5b"/>
+          <path d="M41.44022,339.21752c2.9,4.1 1.1,7.8 -3.8,8.3c-4.9,0.5 -7.4,-2.9 -5.2,-7.5c2,-4.6 6.1,-4.9 9,-0.8z" fill="#1c9e5b"/>
+          <path d="M99.64022,316.21752c0,5.5 -3.9,7.8 -8.7,5l-5.1,-3c-4.8,-2.8 -4.8,-7.2 0,-10l5.1,-3c4.8,-2.8 8.7,-0.5 8.7,5z" fill="#1c9e5b"/>
+          <path d="M86.64022,362.11752c-0.8,5.4 -5,7.1 -9.3,3.6l-3,-2.4c-4.3,-3.4 -3.6,-7.9 1.5,-9.9l3.5,-1.4c5.1,-2 8.6,0.8 7.8,6.3z" fill="#1fad64"/>
+          <path d="M10.64022,367.01752c-2.2,3.8 -5.8,3.8 -8,0c-2.2,-3.8 -0.4,-6.9 4,-6.9c4.4,0 6.2,3.1 4,6.9z" fill="#1fad64"/>
+          <path d="M13.84022,284.91752c2.2,4.4 0,7.8 -5,7.5c-5,-0.3 -6.8,-3.9 -4,-8.1c2.7,-4.1 6.7,-3.9 9,0.6z" fill="#1fad64"/>
+          <path d="M72.34022,274.81752c-5.3,-1.3 -6.6,-5.6 -2.8,-9.6l4.3,-4.5c3.8,-4 8.2,-2.9 9.7,2.4l1.7,6c1.5,5.3 -1.6,8.5 -6.9,7.2z" fill="#1fad64"/>
+          <path d="M206.14022,251.91752c-0.3,5.5 -4.3,7.5 -8.9,4.6l-0.7,-0.5c-4.6,-3 -4.4,-7.5 0.5,-10l0.8,-0.4c4.9,-2.5 8.7,-0.1 8.4,5.4z" fill="#1fad64"/>
+          <path d="M97.04022,221.41752c-5.3,1.4 -8.5,-1.8 -7.1,-7.1l2.3,-8.5c1.4,-5.3 5.8,-6.5 9.7,-2.6l6.2,6.2c3.9,3.9 2.7,8.2 -2.6,9.7z" fill="#1fad64"/>
+          <path d="M198.54022,389.71752c0.7,5.5 -2.9,8.2 -8,6l-4.5,-1.9c-5.1,-2.1 -5.6,-6.6 -1.3,-9.9l3.9,-3c4.4,-3.3 8.5,-1.6 9.2,3.9z" fill="#1fad64"/>
+          <path d="M155.54022,326.41752c-5,-0.5 -6.7,-4.3 -3.7,-8.3c3,-4 7,-3.6 9.1,1c2.1,4.6 -0.4,7.9 -5.4,7.3z" fill="#1fad64"/>
+          <path d="M110.54022,397.81752c0.3,5.2 -3.2,7.5 -7.8,5.2c-4.6,-2.3 -4.9,-6.5 -0.6,-9.4c4.3,-2.8 8.1,-0.9 8.4,4.2z" fill="#1c9e5b"/>
+        </g>
+        <g stroke-width="1">
+          <path d="M-23.85978,172.96227v-256h256v256z" fill="#1ea761"/>
+          <path d="M-5.65978,33.96227c-3.2,4 -7.3,3.3 -9.1,-1.4c-1.8,-4.7 0.8,-8 5.8,-7.2c5,0.8 6.5,4.7 3.3,8.6z" fill="#1c9e5b"/>
+          <path d="M192.64022,136.76227c0.7,5.5 -2.9,8.2 -8,6l-16.7,-7c-5.1,-2.1 -5.6,-6.6 -1.3,-9.9l14.5,-11c4.4,-3.3 8.5,-1.6 9.2,3.9z" fill="#1c9e5b"/>
+          <path d="M208.34022,-51.63773c5,2.3 5.5,6.7 1,10l-20.4,14.6c-4.5,3.2 -8.6,1.4 -9.1,-4.1l-2.5,-25c-0.5,-5.5 3.1,-8.1 8.1,-5.8z" fill="#1c9e5b"/>
+          <path d="M157.74022,50.46227c-4.8,1 -7.4,-1.9 -5.9,-6.6c1.5,-4.6 5.4,-5.5 8.7,-1.8c3.2,3.6 1.9,7.4 -2.8,8.4z" fill="#1c9e5b"/>
+          <path d="M16.34022,-54.23773c-1.1,5.4 -5.3,6.9 -9.5,3.2l-5.9,-5.1c-4.1,-3.6 -3.3,-8 1.9,-9.8l7.4,-2.5c5.2,-1.8 8.6,1.2 7.5,6.6z" fill="#1c9e5b"/>
+          <path d="M84.14022,50.96227c-3.5,4.3 -7.9,3.6 -9.9,-1.6l-5.8,-14.9c-2,-5.1 0.8,-8.6 6.3,-7.8l15.8,2.5c5.4,0.9 7.1,5.1 3.6,9.3z" fill="#1c9e5b"/>
+          <path d="M98.34022,-14.53773c0.5,5 -2.8,7.4 -7.4,5.3c-4.6,-2.1 -5,-6.2 -0.9,-9.1c4.1,-2.9 7.8,-1.2 8.3,3.8z" fill="#1c9e5b"/>
+          <path d="M23.54022,108.96227c-2.5,4.9 -7,5.2 -10,0.6l-3.3,-5c-3,-4.6 -1,-8.6 4.5,-8.9l5.9,-0.3c5.5,-0.3 8,3.4 5.5,8.4z" fill="#1c9e5b"/>
+          <path d="M211.64022,96.16227c-3.2,4.4 -7.7,4 -9.9,-1.1l-1.5,-3.5c-2.2,-5 0.4,-8.7 5.9,-8.1l3.8,0.4c5.5,0.6 7.3,4.7 4.1,9.1z" fill="#1fad64"/>
+          <path d="M27.64022,66.96227c-4.3,0.9 -6.7,-1.8 -5.4,-5.9c1.4,-4.2 4.9,-4.9 7.8,-1.7c2.9,3.2 1.9,6.7 -2.4,7.6z" fill="#1fad64"/>
+          <path d="M21.44022,-9.13773c-2.7,4.1 -6.8,3.9 -9,-0.5c-2.2,-4.4 0,-7.8 5,-7.5c5,0.3 6.8,3.8 4,8z" fill="#1fad64"/>
+          <path d="M94.84022,101.66227c-4.1,-3.6 -3.3,-8 1.9,-9.8l5.9,-2c5.2,-1.8 8.6,1.2 7.5,6.6l-1.2,6.1c-1.1,5.4 -5.3,6.9 -9.5,3.2z" fill="#1fad64"/>
+          <path d="M75.74022,-45.13773c-3.2,4.4 -7.7,4 -9.9,-1.1l-0.4,-0.8c-2.2,-5 0.4,-8.7 5.9,-8.1l0.9,0.1c5.5,0.6 7.3,4.7 4.1,9.1z" fill="#1fad64"/>
+          <path d="M125.24022,-38.03773c-4.8,-2.8 -4.8,-7.3 0,-10l7.6,-4.4c4.8,-2.8 8.7,-0.5 8.7,5v8.8c0,5.5 -3.9,7.8 -8.7,5z" fill="#1fad64"/>
+          <path d="M134.74022,153.06227c-2.2,5.1 -6.6,5.6 -9.9,1.2l-2.9,-3.9c-3.3,-4.4 -1.5,-8.5 3.9,-9.2l4.9,-0.6c5.5,-0.7 8.2,2.9 6,8z" fill="#1fad64"/>
+          <path d="M190.44022,19.46227c-2.4,-4.4 -0.2,-7.9 4.8,-7.8c5,0.1 7,3.8 4.3,8.1c-2.6,4.3 -6.7,4.1 -9.1,-0.3z" fill="#1fad64"/>
+          <path d="M57.74022,160.16227c-3.2,4 -7.4,3.4 -9.3,-1.5c-1.9,-4.9 0.8,-8.1 5.9,-7.3c5.1,0.8 6.6,4.8 3.4,8.8z" fill="#1c9e5b"/>
+        </g>
+        <g stroke-width="1">
+          <path d="M231.39547,172.96227v-256h256v256z" fill="#1ea761"/>
+          <path d="M425.39547,56.16227c-4.5,-2.4 -4.7,-6.5 -0.4,-9.2c4.3,-2.7 8,-0.8 8.2,4.3c0.2,5.1 -3.3,7.3 -7.8,4.9z" fill="#1c9e5b"/>
+          <path d="M299.19547,153.06227c-2.5,4.9 -7,5.2 -10,0.6l-10,-15.2c-3,-4.6 -1,-8.6 4.5,-8.9l18.1,-1.1c5.5,-0.3 8,3.4 5.5,8.4z" fill="#1c9e5b"/>
+          <path d="M363.69547,34.66227c5.5,0.3 7.5,4.3 4.5,8.9l-13.8,21c-3,4.6 -7.5,4.3 -10,-0.6l-11.2,-22.4c-2.5,-4.9 0,-8.7 5.5,-8.3z" fill="#1c9e5b"/>
+          <path d="M342.79547,-19.33773c-0.2,-4.9 3.2,-7 7.5,-4.7c4.3,2.3 4.5,6.2 0.3,8.8c-4.1,2.6 -7.6,0.8 -7.8,-4.1z" fill="#1c9e5b"/>
+          <path d="M288.89547,-33.63773c-4.7,2.9 -8.6,0.8 -8.8,-4.7l-0.3,-7.8c-0.2,-5.5 3.6,-7.9 8.5,-5.3l6.9,3.7c4.9,2.6 5,7.1 0.4,10z" fill="#1c9e5b"/>
+          <path d="M432.69547,-8.63773c-4.9,2.6 -8.7,0.2 -8.5,-5.3l0.6,-16c0.2,-5.5 4.2,-7.6 8.9,-4.7l13.5,8.5c4.7,2.9 4.5,7.4 -0.4,10z" fill="#1c9e5b"/>
+          <path d="M265.09547,52.76227c-3.6,3.5 -7.6,2.3 -8.8,-2.5c-1.2,-4.9 1.7,-7.7 6.6,-6.3c4.8,1.3 5.8,5.3 2.2,8.8z" fill="#1c9e5b"/>
+          <path d="M450.59547,134.96227c-4.8,2.8 -8.7,0.5 -8.7,-5v-6c0,-5.5 3.9,-7.8 8.7,-5l5.1,3c4.8,2.8 4.8,7.2 0,10z" fill="#1c9e5b"/>
+          <path d="M299.29547,6.36227c-5.4,-1 -6.9,-5.2 -3.4,-9.4l2.4,-2.9c3.6,-4.2 8,-3.4 9.8,1.8l1.3,3.6c1.9,5.2 -1.1,8.6 -6.5,7.6z" fill="#1fad64"/>
+          <path d="M244.29547,149.96227c-0.5,-4.4 2.4,-6.5 6.4,-4.8c4,1.7 4.4,5.3 0.9,7.9c-3.5,2.6 -6.8,1.3 -7.3,-3.1z" fill="#1fad64"/>
+          <path d="M466.89547,-56.83773c-4.9,-0.5 -6.6,-4.2 -3.7,-8.2c2.9,-4 6.9,-3.6 9,0.9c2.1,4.5 -0.4,7.8 -5.3,7.3z" fill="#1fad64"/>
+          <path d="M387.59547,76.66227c3.6,-4.2 8,-3.4 9.8,1.8l2.1,5.9c1.9,5.2 -1.1,8.6 -6.5,7.6l-6.1,-1.1c-5.4,-1 -6.9,-5.2 -3.4,-9.4z" fill="#1fad64"/>
+          <path d="M462.69547,18.76227c-5.4,-1.2 -6.7,-5.5 -3,-9.5l0.6,-0.6c3.7,-4.1 8.1,-3.1 9.8,2.2l0.3,0.8c1.6,5.2 -1.4,8.6 -6.8,7.4z" fill="#1fad64"/>
+          <path d="M379.59547,-55.23773c0.6,-5.5 4.7,-7.3 9.1,-4.1l7.1,5.2c4.4,3.2 4,7.7 -1.1,9.9l-8,3.6c-5,2.2 -8.7,-0.4 -8.1,-5.9z" fill="#1fad64"/>
+          <path d="M392.29547,153.56227c-5.2,1.7 -8.6,-1.3 -7.4,-6.7l1,-4.8c1.2,-5.4 5.4,-6.8 9.5,-3.1l3.6,3.3c4.1,3.7 3.1,8.1 -2.1,9.8z" fill="#1fad64"/>
+          <path d="M305.39547,90.66227c5,0 7.1,3.6 4.6,7.9c-2.5,4.4 -6.6,4.4 -9.1,0c-2.6,-4.3 -0.5,-7.9 4.5,-7.9z" fill="#1fad64"/>
+          <path d="M361.19547,124.26227c-5,-1.1 -6.3,-5.2 -2.8,-9c3.5,-3.8 7.6,-2.9 9.2,2c1.5,5 -1.3,8.1 -6.4,7z" fill="#1c9e5b"/>
+        </g>
+        <g stroke-width="1">
+          <path d="M231.39547,428.21752v-256h256v256z" fill="#1ea761"/>
+          <path d="M440.89547,198.91752c1.7,4.8 -0.9,8 -5.9,7.1c-5,-0.9 -6.4,-4.8 -3.2,-8.7c3.2,-3.9 7.4,-3.2 9.1,1.6z" fill="#1c9e5b"/>
+          <path d="M293.49547,228.21752c-1,5.4 -5.3,6.9 -9.5,3.3l-13.7,-11.9c-4.2,-3.6 -3.3,-8 1.9,-9.8l17.2,-6c5.2,-1.8 8.6,1.2 7.6,6.6z" fill="#1c9e5b"/>
+          <path d="M390.99547,267.31752c1.3,5.3 -1.9,8.5 -7.2,6.9l-24.1,-7c-5.3,-1.5 -6.4,-5.9 -2.4,-9.7l18.1,-17.4c4,-3.8 8.3,-2.5 9.6,2.8z" fill="#1c9e5b"/>
+          <path d="M458.89547,325.81752c-1,4.8 -4.8,6 -8.4,2.7c-3.6,-3.3 -2.8,-7.2 1.9,-8.6c4.6,-1.5 7.5,1.1 6.5,5.9z" fill="#1c9e5b"/>
+          <path d="M260.89547,297.31752c-2,5.1 -6.5,5.8 -9.9,1.5l-4.9,-6.1c-3.4,-4.3 -1.8,-8.5 3.7,-9.3l7.8,-1.1c5.4,-0.8 8.2,2.7 6.2,7.8z" fill="#1c9e5b"/>
+          <path d="M340.79547,335.01752c0.3,5.5 -3.4,8 -8.3,5.5l-14.3,-7.1c-4.9,-2.4 -5.2,-6.9 -0.6,-10l13.3,-8.9c4.6,-3 8.6,-1 9,4.5z" fill="#1c9e5b"/>
+          <path d="M428.49547,379.91752c1.2,4.9 -1.7,7.7 -6.5,6.3c-4.8,-1.4 -5.8,-5.4 -2.2,-8.8c3.5,-3.5 7.5,-2.3 8.7,2.5z" fill="#1c9e5b"/>
+          <path d="M267.09547,379.71752c0.4,5.5 -3.4,8 -8.3,5.6l-5.3,-2.6c-4.9,-2.4 -5.2,-6.9 -0.7,-10l4.9,-3.3c4.6,-3.1 8.6,-1.1 9,4.4z" fill="#1c9e5b"/>
+          <path d="M453.49547,243.91752c1,5.4 -2.5,8.3 -7.6,6.4l-3.6,-1.3c-5.2,-1.9 -6,-6.3 -1.8,-9.8l2.9,-2.4c4.2,-3.5 8.4,-2 9.4,3.4z" fill="#1fad64"/>
+          <path d="M347.09547,215.61752c-1.9,4 -5.4,4.3 -8,0.7c-2.6,-3.6 -1,-6.9 3.4,-7.2c4.4,-0.3 6.4,2.6 4.6,6.5z" fill="#1fad64"/>
+          <path d="M305.69547,271.11752c3.9,3.1 3.2,7.1 -1.4,8.9c-4.6,1.8 -7.8,-0.7 -7,-5.6c0.7,-4.9 4.5,-6.4 8.4,-3.3z" fill="#1fad64"/>
+          <path d="M396.69547,336.91752c-5.5,0.3 -7.9,-3.5 -5.4,-8.4l2.8,-5.5c2.5,-4.9 7,-5.1 10,-0.5l3.4,5.2c3,4.6 0.9,8.6 -4.6,8.9z" fill="#1fad64"/>
+          <path d="M314.19547,366.71752c1.8,5.2 -1.2,8.6 -6.6,7.5l-0.8,-0.2c-5.4,-1.1 -6.8,-5.4 -3.2,-9.5l0.6,-0.6c3.6,-4.1 8,-3.2 9.8,2z" fill="#1fad64"/>
+          <path d="M467.19547,373.61752c-4.9,2.5 -8.7,0 -8.3,-5.5l0.5,-8.8c0.3,-5.5 4.4,-7.5 9,-4.5l7.3,4.8c4.6,3 4.3,7.5 -0.6,10z" fill="#1fad64"/>
+          <path d="M370.79547,378.71752c0.7,5.5 -2.9,8.2 -8,6l-4.5,-1.9c-5.1,-2.1 -5.6,-6.6 -1.3,-9.9l3.9,-3c4.4,-3.3 8.5,-1.6 9.2,3.9z" fill="#1fad64"/>
+          <path d="M437.09547,416.51752c-5,-0.3 -6.9,-4 -4.1,-8.2c2.8,-4.2 6.9,-4 9.1,0.5c2.2,4.5 0,8 -5,7.7z" fill="#1fad64"/>
+          <path d="M317.39547,405.11752c2,4.8 -0.5,8.1 -5.6,7.5c-5.1,-0.6 -6.8,-4.5 -3.7,-8.6c3.1,-4.1 7.3,-3.7 9.3,1.1z" fill="#1c9e5b"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>`
+            },
+            {
+                name: "Desert",
+                svg: `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="511.99964" height="512.00278" viewBox="0,0,511.99964,512.00278"><g transform="translate(15.99982,76.00139)"><g data-paper-data="{&quot;isPaintingLayer&quot;:true}" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" style="mix-blend-mode: normal"><g><path d="M-15.99952,180.00139h256v256h-256z" fill="#e0d1af"/><path d="M147.20048,381.90139l16,14.9l-14.8,15.8l-15.8,-14.8l14.6,-15.9" fill="#d7c9a8"/><path d="M209.20048,336.40139l-21.1,4.9l-5,-21.3l21.3,-5l4.8,21.4" fill="#d7c9a8"/><path d="M17.40048,266.10139l20.4,-7.4l7.5,20.4l-20.4,7.4l-7.5,-20.4" fill="#d7c9a8"/><path d="M71.80048,207.10139l2.3,21.5l-21.5,2.4l-2.4,-21.5l21.6,-2.4" fill="#d7c9a8"/><path d="M123.90048,224.10139l-20.9,-6.3l6.6,-21l20.7,6.6z" fill="#d7c9a8"/><path d="M240.00048,436.00139h-39.2c11.3,-29.8 20.5,-66.8 39.2,-91v91" fill="#ecdcb8"/><path d="M13.80048,209.20139c-6.3,24.1 -15.5,44.3 -29.8,63.4v-92.6h41c-4.3,9.2 -8,18.9 -11.2,29.2" fill="#ecdcb8"/><path d="M200.80048,180.00139h39.2v92.6c-22.3,29.5 -72,-4.8 -97.7,64.3c-25.7,69.1 -93.4,46.6 -117.3,99.1h-41v-91c23.7,-34 42,-16.9 98.5,-66.7c56.5,-49.8 96.6,-49.8 118.3,-98.3" fill="#ecdcb8"/><path d="M72.40048,332.70139l-9.3,19.6l-19.6,-9.4l9.5,-19.4l19.4,9.2" fill="#f3e2be"/><path d="M13.30048,369.00139l8.2,17.8l-17.6,8.2l-8.2,-17.6l17.6,-8.4" fill="#f3e2be"/><path d="M223.00048,241.50139l-20.5,7.5l-7.4,-20.5l20.5,-7.4l7.4,20.4" fill="#f3e2be"/><path d="M126.00048,264.50139l21,5.8l-5.6,21.2l-21.2,-6l5.8,-21" fill="#f3e2be"/><path d="M104.30048,322.30139l18.6,11.6l-11.8,18.4l-18.4,-11.6z" fill="#f3e2be"/></g><g><path d="M-15.99982,-75.99887h256v256h-256z" fill="#e0d1af"/><path d="M75.10018,148.60113l19.9,-9.3l9,19.7l-19.6,9.1l-9.3,-19.5" fill="#d7c9a8"/><path d="M214.80018,94.50112l-12.4,17.8l-18,-12.5l12.5,-18l17.9,12.7" fill="#d7c9a8"/><path d="M39.50018,1.90113l-12.2,-18l18,-12.1l12.2,17.9l-18,12.2" fill="#d7c9a8"/><path d="M37.40018,34.80113l17.8,12.4l-12.4,17.8l-17.8,-12.4l12.4,-17.8" fill="#d7c9a8"/><path d="M119.20018,-51.29887l-21.1,5.5l-5.4,-21.2l21.1,-5.3z" fill="#d7c9a8"/><path d="M240.00018,180.00113h-39.2c11.3,-29.8 20.5,-66.8 39.2,-91v91" fill="#ecdcb8"/><path d="M13.80018,-46.79887c-6.3,24.1 -15.5,44.3 -29.8,63.4v-92.6h41c-4.3,9.2 -8,18.9 -11.2,29.2" fill="#ecdcb8"/><path d="M200.80018,-75.99887h39.2v92.6c-22.3,29.5 -33.5,60.7 -97.7,64.3c-64.2,3.6 -93.4,46.6 -117.3,99.1h-41v-91c23.7,-34 92.3,31.4 98.5,-66.7c6.2,-98.1 96.6,-49.8 118.3,-98.3" fill="#ecdcb8"/><path d="M26.70018,118.70113l1.7,21.6l-21.7,1.5l-1.4,-21.5l21.4,-1.6" fill="#f3e2be"/><path d="M204.60018,22.10113l-14.2,16.5l-16.5,-14.2l14.2,-16.5l16.5,14.2" fill="#f3e2be"/><path d="M106.00018,53.60113l15.9,-15l15.2,15.8l-16.2,15.1l-14.9,-15.9" fill="#f3e2be"/><path d="M115.80018,-2.39887l21.6,-3.4l3.2,21.7l-21.5,3.2z" fill="#f3e2be"/><path d="M127.90018,109.60113l18,-12.4l12.2,17.9l-17.9,12.2l-12.3,-17.7" fill="#d7c9a8"/><path d="M217.80018,-50.29887l0.1,21.7l-21.8,0.1l-0.1,-21.8h21.8" fill="#f3e2be"/><path d="M149.50018,166.90113l3.4,-21.7l21.4,3.5l-3.5,21.4l-21.3,-3.2" fill="#d7c9a8"/></g><g><path d="M239.99909,-76.00139h256v256h-256z" fill="#e0d1af"/><path d="M381.99909,164.19861l-14.9,-16.1l16,-14.6l14.6,16l-15.7,14.7" fill="#d7c9a8"/><path d="M453.69909,53.69861l20,8.2l-8.3,20.3l-20.2,-8.3l8.5,-20.2" fill="#d7c9a8"/><path d="M320.49909,-28.50139l-21.7,-1.6l1.7,-21.7l21.6,1.7l-1.6,21.6" fill="#d7c9a8"/><path d="M259.69909,13.39861l21.1,-4.8l4.8,21.1l-21.1,4.9l-4.8,-21.2" fill="#d7c9a8"/><path d="M381.49909,-39.90139l-9.1,19.9l-19.8,-9.3l9.3,-19.7z" fill="#d7c9a8"/><path d="M495.99909,179.99861h-39.2c11.3,-29.8 20.5,-66.8 39.2,-91v91" fill="#ecdcb8"/><path d="M269.79909,-46.80139c-6.3,24.1 -15.5,44.3 -29.8,63.4v-92.6h41c-4.3,9.2 -8,18.9 -11.2,29.2" fill="#ecdcb8"/><path d="M456.79909,-76.00139h39.2v92.6c-22.3,29.5 -70.5,19.4 -97.7,64.3c-27.2,44.9 -93.4,46.6 -117.3,99.1h-41v-91c23.7,-34 61.8,-63.3 98.5,-66.7c36.7,-3.4 96.6,-49.8 118.3,-98.3" fill="#ecdcb8"/><path d="M283.29909,110.49861l9.3,19.6l-19.7,9.2l-9,-19.6l19.4,-9.2" fill="#f3e2be"/><path d="M423.09909,22.29861l-5.6,21l-21.1,-5.7l5.7,-21l21,5.7" fill="#f3e2be"/><path d="M291.39909,80.59861l8.1,-20.3l20.4,7.9l-8.3,20.5l-20.2,-8.1" fill="#f3e2be"/><path d="M352.89909,62.19861l20.1,-8.6l8.4,20.3l-20.1,8.4z" fill="#f3e2be"/><path d="M432.19909,130.09861l-0.1,-21.9h21.6l0.1,21.6l-21.6,0.3" fill="#d7c9a8"/><path d="M469.89909,-22.30139l8.9,19.8l-19.8,9l-9,-19.9l19.9,-8.9" fill="#f3e2be"/></g><g><path d="M239.99982,179.99514h256v256h-256z" fill="#e0d1af"/><path d="M367.39982,397.19514l9,20l-19.8,8.8l-8.8,-19.8l19.6,-9" fill="#d7c9a8"/><path d="M455.79982,401.99514l-21.6,-2.2l2.2,-21.8l21.8,2.2l-2.4,21.8" fill="#d7c9a8"/><path d="M301.19982,231.39514l21.6,2.2l-2.2,21.6l-21.6,-2.2l2.2,-21.6" fill="#d7c9a8"/><path d="M358.39982,214.79514l-21.4,3.4l-3.4,-21.4l21.4,-3.4l3.4,21.4" fill="#d7c9a8"/><path d="M411.99982,223.79514l-17.8,-12.6l12.8,-17.8l17.6,12.8z" fill="#d7c9a8"/><path d="M495.99982,435.99514h-39.2c11.3,-29.8 20.5,-66.8 39.2,-91v91" fill="#ecdcb8"/><path d="M269.79982,209.19514c-6.3,24.1 -15.5,44.3 -29.8,63.4v-92.6h41c-4.3,9.2 -8,18.9 -11.2,29.2" fill="#ecdcb8"/><path d="M456.79982,179.99514h39.2v92.6c-22.3,29.5 -49.1,55.2 -97.7,64.3c-48.6,9.1 -93.4,46.6 -117.3,99.1h-41v-91c23.7,-34 51.8,-54.6 98.5,-66.7c46.7,-12.1 96.6,-49.8 118.3,-98.3" fill="#ecdcb8"/><path d="M293.59982,333.39514l-12.6,17.6l-17.6,-12.8l12.8,-17.4l17.4,12.6" fill="#f3e2be"/><path d="M292.79982,361.39514l6.2,18.6l-18.4,6.2l-6.2,-18.4l18.4,-6.4" fill="#f3e2be"/><path d="M460.79982,263.79514l-15.8,-15l15,-15.8l15.8,15l-15,15.8" fill="#f3e2be"/><path d="M428.79982,279.19514l20.4,7.8l-7.6,20.6l-20.6,-8l7.8,-20.4" fill="#f3e2be"/><path d="M396.99982,286.99514l14,16.8l-17,13.8l-13.8,-16.8z" fill="#f3e2be"/></g></g></g></svg>`
+            },
+            {
+                name: "Ocean",
+                svg: `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="511.76277" height="511.81082" viewBox="0,0,511.76277,511.81082">
+  <g transform="translate(26.13814,75.63063)">
+    <g data-paper-data="{&quot;isPaintingLayer&quot;:true}" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" style="mix-blend-mode: normal">
+      <g>
+        <path d="M-26.13814,-75.62762h256v256h-256z" fill="#66869e"/>
+        <path d="M-26.13814,107.70238v-140.37c18.43,-27.04 49.95,-25.58 75.71,-42.96h131.92c-13.33,26.67 -46.9,50.72 -78.99,62.98c-32.09,12.26 -58.15,40.46 -69.66,66.38c-11.51,25.92 -39.42,42.3 -58.98,53.97zM49.57186,180.37238c25.75,-17.38 34.73,-40.03 49.92,-71.18c15.19,-31.15 43.91,-51.55 77.15,-71.97c33.24,-20.42 34.79,-42.85 53.22,-69.89v140.37c-19.56,11.67 -25.47,20.26 -31.71,30.7c-6.24,10.43 -3.33,15.3 -16.66,41.97" fill="#88b0c9"/>
+        <path d="M59.91186,75.76238c-1.27,-0.95 -3.44,-14.15 -2.81,-15.53c0.64,-1.38 2.21,-13.11 3.4,-13.94c1.19,-0.83 19.71,0.22 21.07,1.02c1.36,0.8 5.7,10.13 6.15,11.6c0.45,1.47 1.27,11.15 0.63,12.58c-0.64,1.43 -15.47,7.56 -16.88,7.3c-1.41,-0.27 -10.29,-2.08 -11.56,-3.03z" fill="#98c8e3"/>
+        <path d="M-5.90814,56.17238c-1.02,-0.8 -4.58,-9.06 -4.38,-10.31c0.19,-1.25 5.41,-7.33 6.12,-8.27c0.72,-0.94 12.49,-7.48 13.65,-6.81c1.16,0.66 5.8,9.35 6.02,10.48c0.21,1.13 0.26,13.29 -0.35,14.35c-0.61,1.06 -9.9,2.78 -11.05,3.38c-1.14,0.59 -8.99,-2.03 -10.01,-2.82z" fill="#779cb0"/>
+        <path d="M220.09186,58.19238c0.77,1.26 -1.48,13.62 -2.02,14.9c-0.54,1.28 -5.08,12.47 -6.37,13.44c-1.29,0.97 -16.3,-4.39 -17.84,-4.76c-1.54,-0.37 -8.06,-7.97 -7.94,-9.64c0.12,-1.67 2.55,-17.34 3.45,-18.55c0.9,-1.21 11.78,-3.75 13.31,-3.33c1.53,0.42 16.64,6.68 17.41,7.94zM17.67186,134.36238c1.15,-0.8 10.85,-1.88 12.09,-1.28c1.24,0.6 5.89,7.93 6.64,8.97c0.75,1.04 3.8,15.32 2.74,16.32c-1.06,0.99 -11.53,3.06 -12.77,2.92c-1.24,-0.14 -13.87,-3.94 -14.78,-4.9c-0.91,-0.97 0.26,-11.15 -0.01,-12.53c-0.26,-1.38 4.94,-8.69 6.09,-9.5zM172.19186,-14.16762c1.84,-0.13 15.64,9.3 16.34,10.75c0.69,1.45 -10.53,11.81 -12.21,12.16c-1.68,0.35 -15.27,-4.91 -15.35,-6.73c-0.07,-1.83 9.38,-16.05 11.22,-16.18zM42.06186,-13.57762c-3.62,0.35 -30.17,-20.59 -30.36,-25.02c-0.2,-4.42 31.89,-16.78 34.19,-13.41c2.29,3.39 -0.21,38.08 -3.83,38.43z" fill="#5a758c"/>
+      </g>
+      <g>
+        <path d="M229.62463,-75.63063h256v256h-256z" fill="#66869e"/>
+        <path d="M229.62463,107.69937v-140.37c18.43,-27.04 49.95,-25.58 75.71,-42.96h131.92c-13.33,26.67 -35.9,56.56 -66.41,70.07c-26.49,11.74 -56.3,27.56 -84.03,48.11c-29.35,21.74 -37.63,53.48 -57.19,65.15zM305.33463,180.36937c25.76,-17.38 41.04,-28.1 55.82,-56.12c11.38,-21.58 46.27,-56.74 73.58,-78.48c27.31,-21.74 32.46,-51.4 50.89,-78.44v140.37c-19.56,11.67 -23.11,14.34 -28.77,26.57c-5.66,12.23 -6.27,19.43 -19.6,46.1" fill="#88b0c9"/>
+        <path d="M318.39463,60.16937c-2.11,-2.05 11.28,-28.4 14.23,-29.51c2.95,-1.11 20.77,20.09 20.14,23.2c-0.64,3.12 -32.25,8.36 -34.37,6.31z" fill="#779cb0"/>
+        <path d="M378.02463,-38.96063c-1.15,-0.83 -8.46,-11.74 -8.24,-13.23c0.23,-1.49 9,-11.06 10.3,-11.85c1.3,-0.78 13.95,-1.71 15.15,-0.86c1.19,0.85 5.43,11.55 5.26,12.97c-0.17,1.42 -6.12,14.09 -7.33,14.82c-1.21,0.74 -13.99,-1.02 -15.14,-1.85zM412.29463,160.86937c-1.61,-0.09 -11.84,-9.77 -12.17,-11.2c-0.33,-1.43 -1.89,-16.76 -1.12,-18.23c0.77,-1.47 12.41,-12.14 14.01,-12.13c1.6,0.01 12.75,9.91 14.17,10.73c1.42,0.81 6.71,11.73 6.63,13.44c-0.07,1.71 -2.82,12 -3.87,13.28c-1.03,1.27 -16.04,4.2 -17.65,4.11z" fill="#98c8e3"/>
+        <path d="M297.44463,-11.48063c-2.19,2.4 -30.21,2.05 -32.71,-0.21c-2.5,-2.27 -6.58,-29.7 -3.94,-31.7c2.64,-2 35.53,-2.34 37.44,0.21c1.91,2.55 1.4,29.3 -0.79,31.7z" fill="#779cb0"/>
+        <path d="M403.07463,3.36937c0.68,-1.08 6.57,-9.4 7.67,-9.78c1.09,-0.38 13.56,-0.26 14.61,0.51c1.05,0.77 3.08,10.06 3.39,11.24c0.31,1.18 -0.81,11.46 -1.58,12.47c-0.77,1.01 -10.86,4.2 -12.01,4.02c-1.15,-0.18 -11.13,-4.98 -11.88,-5.94c-0.75,-0.96 -0.88,-11.45 -0.2,-12.52zM280.08463,150.92937c-1.22,-1.6 -8.04,-17.35 -7.64,-19.32c0.4,-1.97 14.31,-15.03 16.18,-15.8c1.87,-0.77 16.99,4.62 18.51,5.92c1.52,1.3 4.95,19.66 4.48,21.52c-0.47,1.86 -10.35,11.44 -12.22,11.84c-1.87,0.39 -18.09,-2.56 -19.31,-4.16z" fill="#5a758c"/>
+      </g>
+      <g>
+        <path d="M-26.05405,180.18019h256v256h-256z" fill="#66869e"/>
+        <path d="M-26.05405,223.14019c18.43,-27.04 49.95,-25.58 75.71,-42.96h131.92c-13.33,26.67 -34.82,38.05 -79.26,53c-26.97,9.07 -60.82,32.77 -79.23,71.02c-15.84,32.91 -29.58,47.64 -49.14,59.31zM49.64595,436.18019c25.75,-17.38 38.58,-29.81 64.09,-48.6c17.9,-13.19 55.25,-50.2 68.01,-75.37c17.69,-34.89 29.76,-62.03 48.19,-89.07v140.37c-19.56,11.67 -27.3,15.11 -33.54,29.28c-6.23,14.17 -1.49,16.72 -14.82,43.39" fill="#88b0c9"/>
+        <path d="M147.88595,413.16019c-0.27,-1.93 8.68,-17.07 10.15,-17.89c1.48,-0.83 13.13,10.23 13.61,11.97c0.48,1.74 -4.09,16.37 -6,16.58c-1.91,0.19 -17.49,-8.74 -17.76,-10.66z" fill="#98c8e3"/>
+        <path d="M26.10595,239.74019c0.77,1.26 -1.48,13.62 -2.02,14.9c-0.54,1.28 -5.08,12.47 -6.37,13.44c-1.29,0.96 -16.3,-4.39 -17.84,-4.76c-1.54,-0.37 -8.06,-7.97 -7.94,-9.64c0.12,-1.67 2.55,-17.34 3.45,-18.55c0.9,-1.21 11.78,-3.75 13.31,-3.33c1.53,0.42 16.64,6.68 17.41,7.94z" fill="#98c8e3"/>
+        <path d="M150.22595,258.70019c0.75,1.51 -2.77,15.88 -3.9,16.92c-1.14,1.04 -14.31,10.42 -16.05,10.49c-1.74,0.06 -17.53,-5.02 -18.35,-6.49c-0.82,-1.47 2.43,-16.78 2.43,-18.5c0,-1.72 7.22,-12.21 8.82,-13.03c1.6,-0.82 12.42,-3.65 14.12,-3.36c1.71,0.28 12.18,12.46 12.93,13.97z" fill="#779cb0"/>
+        <path d="M77.74595,193.16019c1.15,-0.8 10.85,-1.88 12.09,-1.28c1.24,0.6 5.89,7.93 6.64,8.97c0.75,1.04 3.8,15.32 2.74,16.32c-1.06,0.99 -11.53,3.06 -12.77,2.92c-1.24,-0.14 -13.87,-3.94 -14.78,-4.9c-0.91,-0.97 0.26,-11.15 -0.01,-12.53c-0.26,-1.38 4.94,-8.69 6.09,-9.5z" fill="#5a758c"/>
+        <path d="M76.01595,385.18019c-1.81,3.13 -30.96,-7.16 -32.48,-10.2c-1.52,-3.03 19.07,-25.78 22.63,-24.57c3.56,1.21 11.66,31.64 9.85,34.77z" fill="#5a758c"/>
+      </g>
+      <g>
+        <path d="M229.58811,180.01802h256v256h-256z" fill="#66869e"/>
+        <path d="M229.58811,222.97802c18.43,-27.04 49.95,-25.58 75.71,-42.96h131.92c-13.33,26.67 -23.84,41.89 -49.3,52.13c-22.98,9.24 -70.89,36.69 -89.3,68.49c-18.3,31.61 -49.47,51.04 -69.03,62.71zM305.29811,436.01802c25.76,-17.38 52.12,-54.33 80.05,-69.29c21.36,-11.44 61.17,-26.81 75.07,-70.8c9.98,-31.6 6.74,-45.91 25.17-72.95v140.37c-19.56,11.67 -24.19,17.7 -30.27,29.86c-6.64,13.28 -4.77,16.14 -18.1,42.81" fill="#88b0c9"/>
+        <path d="M278.82811,299.10802c-2,2.43 -21.49,3 -23.75,1.05c-2.26,-1.95 -9.16,-21.46 -6.99,-23.41c2.17,-1.95 28.65,-12.65 30.76,-10.41c2.11,2.25 1.98,30.34 -0.02,32.77z" fill="#5a758c"/>
+        <path d="M340.69811,215.16802c-0.4,-1.41 -0.57,-13.64 0.04,-15.18c0.6,-1.55 10.65,-13.12 12.3,-12.83c1.66,0.29 10.85,7.52 11.75,8.66c0.9,1.14 11.81,12.54 11.47,14.1c-0.34,1.55 -11.53,13.93 -12.95,14.46c-1.42,0.53 -14.72,-3.73 -16.13,-3.94c-1.4,-0.22 -6.08,-3.86 -6.48,-5.27z" fill="#779cb0"/>
+        <path d="M351.36811,285.20802c-0.2,-1.42 10.5,-13.39 11.91,-13.86c1.41,-0.47 13.84,-6.9 15.06,-6.1c1.22,0.8 11.31,13.94 12.18,15.22c0.87,1.28 -6.7,14.74 -7.71,15.89c-1.01,1.15 -6.19,9.08 -7.65,9.22c-1.46,0.14 -15.81,-10.68 -17.16,-11.44c-1.34,-0.76 -6.43,-7.51 -6.63,-8.93z" fill="#98c8e3"/>
+        <path d="M311.46811,388.87802c0.72,1.18 -1.39,12.78 -1.89,13.98c-0.5,1.2 -4.76,11.7 -5.98,12.61c-1.21,0.9 -15.29,-4.12 -16.74,-4.46c-1.45,-0.34 -7.56,-7.48 -7.45,-9.04c0.12,-1.57 2.39,-16.27 3.24,-17.4c0.84,-1.14 11.05,-3.52 12.49,-3.12c1.43,0.38 15.6,6.25 16.33,7.43z" fill="#779cb0"/>
+      </g>
+    </g>
+  </g>
+</svg>`
+            }
+        ];
+        let currentMapIndex = 1; // Start at Garden
+
+        // === BACKGROUND LOGIC ===
+        function loadMapFromSVG(svgString) {
+            const img = new Image();
+            const blob = new Blob([svgString], {type: 'image/svg+xml'});
+            const url = URL.createObjectURL(blob);
+
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const size = 512; 
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, size, size);
+                const lowResUrl = canvas.toDataURL('image/png');
+
+                const svgBg = document.getElementById('svg-bg');
+                
+                svgBg.style.backgroundImage = `url(${lowResUrl})`;
+                
+                URL.revokeObjectURL(url);
+            };
+            img.src = url;
+        }
+
+        // === 2. GAME STATE & ACCOUNTS ===
+        const DEV_ACCOUNT = {
+            username: "admin",
+            password: "admin",
+            slots: 10
+        };
+
+        const STORAGE_KEY = "caxtus_users";
+
+        function initAccounts() {
+            let users = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+            if (!users[DEV_ACCOUNT.username]) {
+                users[DEV_ACCOUNT.username] = {
+                    password: DEV_ACCOUNT.password,
+                    slots: DEV_ACCOUNT.slots 
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+            }
+        }
+        initAccounts();
+
+        const originalGuestNum = Math.floor(Math.random() * 100000);
+        const randomNumSpan = document.getElementById('random-number');
+        const topRightLabel = document.getElementById('top-right-label');
+        randomNumSpan.textContent = originalGuestNum;
+        let currentUserData = null; 
+
+        // === 3. CHANGELOG DATA ===
+        const changelogData = [
+            {
+                date: "2026 March 9",
+                items: [
+                    "added the switch biome",
+                    "Added Minimap"
+                ]
+            },
+            {
+                date: "2026 Feb 24",
+                items: [
+                    "changed bg to desert for testing",
+                    "soon gonna add grid cuz why not",
+                    "Added changelog"
+                ]
+            },
+            {
+                date: "2026 Feb 23",
+                items: [
+                    "trying to make the game playable ofc"
+                ]
+            }
+        ];
+
+        function renderChangelog() {
+            const container = document.getElementById('changelog-content');
+            container.innerHTML = '';
+            
+            changelogData.forEach(entry => {
+                const div = document.createElement('div');
+                div.className = 'changelog-entry';
+                
+                let html = `<span class="changelog-date">${entry.date}</span>`;
+                entry.items.forEach(text => {
+                    html += `<div class="changelog-item-text">${text}</div>`;
+                });
+                
+                div.innerHTML = html;
+                container.appendChild(div);
+            });
+
+            const footer = document.createElement('div');
+            footer.className = 'changelog-footer';
+            footer.textContent = 'Game made by Delerial and Crazylight';
+            container.appendChild(footer);
+        }
+        renderChangelog();
+
+        // === 4. UI INTERACTION LOGIC ===
+        const settingsTrigger = document.getElementById('settings-trigger');
+        const settingsMenu = document.getElementById('settings-menu');
+        const accountTrigger = document.getElementById('account-trigger');
+        const accountMenu = document.getElementById('account-menu');
+        const changelogTrigger = document.getElementById('changelog-trigger');
+        const changelogMenu = document.getElementById('changelog-menu');
+        const closeChangelog = document.getElementById('close-changelog');
+        
+        // New Inventory elements
+        const inventoryTrigger = document.getElementById('inventory-trigger');
+        const inventoryMenu = document.getElementById('inventory-menu');
+
+        function closeAllDropdowns() {
+            settingsMenu.classList.remove('open');
+            accountMenu.classList.remove('open');
+            changelogMenu.classList.remove('open');
+            inventoryMenu.classList.remove('open');
+        }
+
+        settingsTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = settingsMenu.classList.contains('open');
+            closeAllDropdowns();
+            if (!isOpen) settingsMenu.classList.add('open');
+        });
+
+        accountTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = accountMenu.classList.contains('open');
+            closeAllDropdowns();
+            if (!isOpen) accountMenu.classList.add('open');
+        });
+
+        changelogTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = changelogMenu.classList.contains('open');
+            closeAllDropdowns();
+            if (!isOpen) changelogMenu.classList.add('open');
+        });
+
+        closeChangelog.addEventListener('click', (e) => {
+            e.stopPropagation();
+            changelogMenu.classList.remove('open');
+        });
+
+        // Inventory Logic
+        inventoryTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = inventoryMenu.classList.contains('open');
+            closeAllDropdowns();
+            if (!isOpen) inventoryMenu.classList.add('open');
+        });
+
+        // Click outside to close logic
+        document.addEventListener('click', (e) => {
+            if (!settingsMenu.contains(e.target) && !settingsTrigger.contains(e.target)) {
+                settingsMenu.classList.remove('open');
+            }
+            if (!accountMenu.contains(e.target) && !accountTrigger.contains(e.target)) {
+                accountMenu.classList.remove('open');
+            }
+            if (!changelogMenu.contains(e.target) && !changelogTrigger.contains(e.target)) {
+                changelogMenu.classList.remove('open');
+            }
+            if (!inventoryMenu.contains(e.target) && !inventoryTrigger.contains(e.target)) {
+                inventoryMenu.classList.remove('open');
+            }
+        });
+
+        const optKeyboard = document.getElementById('opt-keyboard');
+        const usernameInput = document.getElementById('username-input');
+        const passwordInput = document.getElementById('password-input');
+        const displayUsername = document.getElementById('display-username');
+        const formView = document.getElementById('account-form-view');
+        const loggedInView = document.getElementById('account-logged-in-view');
+        const topRow = document.getElementById('top-row');
+        const bottomRow = document.getElementById('bottom-row');
+
+        function updateHotbar(slotsCount) {
+            topRow.innerHTML = '';
+            bottomRow.innerHTML = '';
+            let topSlots = Math.min(slotsCount, 5);
+            let bottomSlots = Math.max(0, slotsCount - 5);
+
+            for (let i = 0; i < topSlots; i++) {
+                const div = document.createElement('div');
+                div.className = 'slot';
+                topRow.appendChild(div);
+            }
+            for (let i = 0; i < bottomSlots; i++) {
+                const div = document.createElement('div');
+                div.className = 'slot-small';
+                bottomRow.appendChild(div);
+            }
+        }
+
+        document.querySelector('.create-btn').addEventListener('click', () => {
+            const u = usernameInput.value.trim();
+            const p = passwordInput.value.trim();
+            if (!u || !p) return;
+
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            if (users[u]) {
+                alert("Username already taken!");
+                return;
+            }
+
+            users[u] = { password: p, slots: 5 };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+            loginUser(u, users[u]);
+        });
+
+        document.querySelector('.login-btn').addEventListener('click', () => {
+            const u = usernameInput.value.trim();
+            const p = passwordInput.value.trim();
+            if (!u || !p) return;
+
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            if (users[u] && users[u].password === p) {
+                loginUser(u, users[u]);
+            } else {
+                alert("Invalid username or password.");
+            }
+        });
+
+        function loginUser(username, userData) {
+            currentUserData = { username, ...userData };
+            displayUsername.textContent = username;
+            topRightLabel.textContent = username;
+            updateHotbar(userData.slots);
+
+            formView.style.display = 'none';
+            loggedInView.style.display = 'block';
+            closeAllDropdowns();
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            currentUserData = null;
+            usernameInput.value = '';
+            passwordInput.value = '';
+            topRightLabel.textContent = "Guest #" + originalGuestNum;
+            updateHotbar(5);
+            loggedInView.style.display = 'none';
+            formView.style.display = 'block';
+            closeAllDropdowns();
+        });
+
+        // === MAP SWITCHING LOGIC ===
+        const mapNameDisplay = document.getElementById('map-name');
+        const mapLeftBtn = document.getElementById('map-left');
+        const mapRightBtn = document.getElementById('map-right');
+
+        function updateMapUI() {
+            const map = MAPS[currentMapIndex];
+            mapNameDisplay.textContent = map.name;
+            loadMapFromSVG(map.svg);
+        }
+
+        mapLeftBtn.addEventListener('click', () => {
+            currentMapIndex--;
+            if (currentMapIndex < 0) currentMapIndex = MAPS.length - 1;
+            updateMapUI();
+        });
+
+        mapRightBtn.addEventListener('click', () => {
+            currentMapIndex++;
+            if (currentMapIndex >= MAPS.length) currentMapIndex = 0;
+            updateMapUI();
+        });
+
+        // Initialize Map
+        updateMapUI();
+
+        // === 5. CHAT LOGIC ===
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+
+        function addMessage(msg) {
+            const div = document.createElement('div');
+            div.textContent = msg;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function handleSend() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+            const displayName = currentUserData ? currentUserData.username : "Guest";
+            addMessage(`${displayName}: ${text}`);
+            chatInput.value = '';
+            chatInput.blur();
+        }
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSend();
+        });
+
+
+        // === 6. GAME LOOP & LOGIC ===
+        const startBtn = document.getElementById('start-btn');
+        const menuLayer = document.getElementById('menu-layer');
+        const gameLayer = document.getElementById('game-layer');
+        const transitionOverlay = document.getElementById('transition-overlay');
+        const svgBg = document.getElementById('svg-bg');
+        const gridBg = document.getElementById('grid-bg');
+        const minimapContainer = document.getElementById('minimap');
+        const menuReturnBtn = document.getElementById('menu-return-btn');
+        
+        const eyeRight = document.getElementById('eye-right');
+        const eyeLeft = document.getElementById('eye-left');
+
+        let isPlaying = false;
+        let bgX = 0;
+        let bgY = 0;
+        let velX = 0;
+        let velY = 0;
+        const acceleration = 0.8; 
+        const friction = 0.9;     
+        const maxSpeed = 10;      
+        const keys = {};
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        const maxEyeMove = 3; 
+        
+        let currentEyeX = 0;
+        let currentEyeY = 0;
+
+        // Function to return to menu
+        function returnToMenu() {
+            if(!isPlaying) return;
+            
+            // 1. Play transition
+            transitionOverlay.classList.add('closing');
+            transitionOverlay.classList.remove('opening');
+
+            // 2. Wait for transition, then hide game and show menu
+            setTimeout(() => {
+                isPlaying = false;
+                gameLayer.style.display = 'none';
+                minimapContainer.style.display = 'none';
+                menuReturnBtn.style.display = 'none';
+                menuLayer.classList.remove('hidden');
+                
+                // Reset position
+                bgX = 0;
+                bgY = 0;
+                velX = 0;
+                velY = 0;
+                svgBg.style.backgroundPosition = `0px 0px`;
+                gridBg.style.backgroundPosition = `0px 0px`;
+
+                // Fade out transition
+                transitionOverlay.classList.remove('closing');
+                transitionOverlay.classList.add('opening');
+            }, 500);
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        startBtn.addEventListener('click', () => {
+            transitionOverlay.classList.add('closing');
+            transitionOverlay.classList.remove('opening');
+
+            setTimeout(() => {
+                menuLayer.classList.add('hidden'); 
+                gameLayer.style.display = 'block';   
+                minimapContainer.style.display = 'flex'; // Show Minimap
+                menuReturnBtn.style.display = 'block'; // Show Return Button
+                isPlaying = true;
+                requestAnimationFrame(gameLoop);
+                transitionOverlay.classList.remove('closing');
+                transitionOverlay.classList.add('opening');
+            }, 500);
+        });
+
+        // Bind the new return button
+        menuReturnBtn.addEventListener('click', returnToMenu);
+
+        window.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+        });
+
+        window.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        function gameLoop() {
+            if (!isPlaying) return;
+
+            const useKeyboard = optKeyboard.checked;
+            
+            if (useKeyboard) {
+                if (keys.d || keys.D || keys.ArrowRight) velX -= acceleration;
+                if (keys.a || keys.A || keys.ArrowLeft)  velX += acceleration;
+                if (keys.s || keys.S || keys.ArrowDown)  velY -= acceleration;
+                if (keys.w || keys.W || keys.ArrowUp)    velY += acceleration;
+            } else {
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+                const dx = mouseX - centerX;
+                const dy = mouseY - centerY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance > 10) {
+                    const moveX = -(dx / distance) * acceleration;
+                    const moveY = -(dy / distance) * acceleration;
+                    velX += moveX;
+                    velY += moveY;
+                }
+            }
+
+            velX *= friction;
+            velY *= friction;
+
+            if (Math.abs(velX) < 0.1) velX = 0;
+            if (Math.abs(velY) < 0.1) velY = 0;
+
+            bgX += velX;
+            bgY += velY;
+
+            // Update Main Background
+            svgBg.style.backgroundPosition = `${bgX}px ${bgY}px`;
+            gridBg.style.backgroundPosition = `${bgX}px ${bgY}px`;
+
+            if (!useKeyboard) {
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+                const dx = mouseX - centerX;
+                const dy = mouseY - centerY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance > 0) {
+                    currentEyeX = (dx / distance) * maxEyeMove;
+                    currentEyeY = (dy / distance) * maxEyeMove;
+                }
+            } else {
+                const speed = Math.sqrt(velX * velX + velY * velY);
+                
+                if (speed > 0.5) {
+                    const dirX = velX / speed;
+                    const dirY = velY / speed;
+                    
+                    currentEyeX = -dirX * maxEyeMove;
+                    currentEyeY = -dirY * maxEyeMove;
+                }
+            }
+
+            if (eyeLeft) eyeLeft.setAttribute('transform', `translate(${currentEyeX}, ${currentEyeY})`);
+            if (eyeRight) eyeRight.setAttribute('transform', `translate(${currentEyeX}, ${currentEyeY})`);
+
+            requestAnimationFrame(gameLoop);
+        }
+
+    </script>
+</body>
+</html> 
