@@ -896,7 +896,7 @@ function pupilLoop() {
     pupil.y += (ty - pupil.y) * 0.15;
 
     if (pupilLeft && pupilRight) {
-        const ox = (pupil.x * PUPIL_RANGE).toFixed(4);
+        const ox = (-0.63 + pupil.x * PUPIL_RANGE).toFixed(4);
         const oy = (pupil.y * PUPIL_RANGE).toFixed(4);
         pupilLeft.setAttribute('transform',  `translate(${ox}, ${oy})`);
         pupilRight.setAttribute('transform', `translate(${ox}, ${oy})`);
